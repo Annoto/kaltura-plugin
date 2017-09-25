@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="{{ htmlWebpackPlugin.options.description }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ htmlWebpackPlugin.options.title }}</title>
+
+  <!-- Disable tap highlight on IE -->
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <!-- Web Application Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="{{ htmlWebpackPlugin.options.title }}">
+  <link rel="icon" sizes="192x192" href="https://assets.annoto.net/images/touch/chrome-touch-icon-192x192.png">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="{{ htmlWebpackPlugin.options.title }}">
+  <link rel="apple-touch-icon" href="https://assets.annoto.net/images/touch/apple-touch-icon.png">
+
+  <!-- Tile icon for Win8 (144x144 + tile color) -->
+  <meta name="msapplication-TileImage" content="https://assets.annoto.net/images/touch/ms-touch-icon-144x144-precomposed.png">
+  <meta name="msapplication-TileColor" content="#ffffff">
+
+  <!-- Color the status bar on mobile devices -->
+  <meta name="theme-color" content="#EA5451">
+
+</head>
+<body>
+<h3>Annoto Kaltura Plugin</h3>
+
+
+<script src="http://cdnapi.kaltura.com/p/2302901/sp/230290100/embedIframeJs/uiconf_id/40404371/partner_id/2302901"></script>
+<div id="kaltura_player_1505141288" style="width: 100%; height: 560px;"><a href="http://corp.kaltura.com/products/video-platform-features">Video Platform</a>
+    <a href="http://corp.kaltura.com/Products/Features/Video-Management">Video Management</a>
+    <a href="http://corp.kaltura.com/Video-Solutions">Video Solutions</a>
+    <a href="http://corp.kaltura.com/Products/Features/Video-Player">Video Player</a></div>
+<script>
+    kWidget.embed({
+        "targetId": "kaltura_player_1505141288",
+        "wid": "_2302901",
+        "uiconf_id": 40404371,
+        "flashvars": {
+            "streamerType": "auto",
+            "annoto": {
+                //This line turn on the plugin
+                'plugin': true,
+                //This line sets the plugin file path
+                "iframeHTML5Js" : "plugin.js",
+                "position": "right",
+            },
+        },
+        "cache_st": 1505141288,
+        "entry_id": "1_4iqmuvbi"
+    });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "name": "Annoto Kaltura Plugin",
+  "launch_path": "/index.html",
+  "description": "Annoto Kaltura Plugin",
+  "icons": {
+    "128": "http://storage.assets.annoto.net/images/touch/icon-128x128.png"
+  },
+  "developer": {
+    "name": "",
+    "url": ""
+  },
+  "installs_allowed_from": [
+    "*"
+  ],
+  "default_locale": "en",
+  "permissions": {
+  },
+  "locales": {
+    "en": {
+      "name": "Annoto Kaltura Plugin",
+      "description": "Annoto Kaltura Plugin"
+    }
+  }
+}
