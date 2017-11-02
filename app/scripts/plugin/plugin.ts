@@ -49,6 +49,7 @@ export class AnnotoPlugin {
         customerKey: '',
         demoMode: true,
         position: 'right',
+        locale: 'en',
         hideScrubber: false,
         scrubberHeight: 5,
         scrubberColor: '#2ec7e1',
@@ -164,10 +165,14 @@ export class AnnotoPlugin {
         }
 
         const demoMode = this.ctx.getConfig('demoMode') && !this.customerKeyIsValid();
+        const locale = this.ctx.getConfig('locale');
+        const rtlLocales = ['he'];
         this.config = {
             demoMode,
+            locale,
             clientId: this.ctx.getConfig('customerKey'),
             position: this.ctx.getConfig('position'),
+            rtl: Boolean(rtlLocales.indexOf(locale) !== -1),
             align: {
                 horizontal: 'inner',
                 vertical: 'top',

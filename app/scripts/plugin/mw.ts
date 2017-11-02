@@ -8,6 +8,7 @@ interface PluginConfiguration {
     customerKey: string;
     demoMode: boolean;
     position: string;
+    locale?: string;
     hideScrubber: boolean;
     scrubberHeight: number;
     scrubberColor: string;
