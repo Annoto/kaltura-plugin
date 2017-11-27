@@ -61,6 +61,17 @@ export class AnnotoPlugin {
             return false;
         }
 
+        const width = window.innerWidth
+        || document.documentElement.clientWidth
+        || document.body.clientWidth;
+
+        const height = window.innerHeight
+        || document.documentElement.clientHeight
+        || document.body.clientHeight;
+
+        if ((width < 320) || (height < 360)) {
+            return false;
+        }
         return true;
     }
 
