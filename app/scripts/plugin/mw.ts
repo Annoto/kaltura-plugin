@@ -30,6 +30,7 @@ interface Player extends Element {
     clientHeight: number;
     clientWidth: number;*/
     autoplay: boolean;
+    kpartnerid: number;
 
     sendNotification: (action: string, arg?: any) => void;
     evaluate: (property: string) => any;

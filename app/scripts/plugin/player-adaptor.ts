@@ -2,6 +2,15 @@ import { Player, MediaEtry, PluginCtx } from './mw';
 import { PlayerAdaptorApi, PlayerEventCallback, ControlsDescriptor } from './player-adaptor-api';
 import { nextTick } from '../util/next-tick';
 
+declare const mw: {
+    getMwEmbedPath: () => string;
+    kApiGetPartnerClient: () => {
+        serviceBase: string,
+        serviceUrl: string,
+        statsServiceUrl: string,       
+    }
+};
+
 export class PlayerAdaptor implements PlayerAdaptorApi {
     private player: Player;
     private ctx: PluginCtx;
@@ -49,7 +58,20 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
 
     public mediaSrc() : string {
         const entry: MediaEtry = this.getProperty('{mediaProxy.entry}');
-        return `http://cdnapi.kaltura.com/p/${entry.partnerId}?entry_id=${entry.id}`;
+        if (!entry) {
+            return;
+        }
+        let partnerId = entry.partnerId;
+        if (!partnerId) {
+            partnerId = this.player.kpartnerid;
+        }
+        if (!partnerId || !entry.id) {
+            return;
+        }
+        const kApi = mw.kApiGetPartnerClient();
+        const sUrl = (kApi && kApi.serviceUrl) ? kApi.serviceUrl : 'http://cdnapi.kaltura.com';
+    
+        return `${sUrl}/partnerId/${partnerId}/entryId/${entry.id}`;
     }
 
     public autoplay() : boolean {
@@ -132,7 +154,6 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
     }
 
     public onMediaChange(cb: PlayerEventCallback) {
-        // TODO: test
         this.on('onChangeMediaDone', () => this.mediaChangeHandle(cb));
     }
 
