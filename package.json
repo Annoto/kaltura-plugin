@@ -1,8 +1,8 @@
 {
   "name": "@annoto/kaltura-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Annoto Kaltura Plugin",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "author": "Genadi Sokolov [genadis.pub@gmail.com]",
   "devDependencies": {
     "@types/jquery": "^3.2.12",
