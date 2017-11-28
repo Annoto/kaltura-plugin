@@ -43,6 +43,20 @@ gulp pagespeed
 
 ```
 
+## Accessing Annoto widget API
+
+```javascript
+    kWidget.addReadyCallback( function(playerId){
+        var kdp = document.getElementById(playerId); 
+
+        kdp.kBind( 'annotoPluginReady', function(api) { 
+            console.log('Annoto is ready and the API can now be used'); 
+        
+            kdp.kUnbind('annotoPluginReady');
+        });
+    });
+```
+
 
 ## Babel Notes
 

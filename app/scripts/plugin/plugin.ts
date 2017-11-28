@@ -220,6 +220,7 @@ export class AnnotoPlugin {
                 this.disableScrubber();
             }
             this.annotoApi.registerDeviceDetector(this.deviceDetector);
+            this.player.triggerHelper('annotoPluginReady', api);
         });
     }
 
