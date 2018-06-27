@@ -1,4 +1,4 @@
-import { DeviceDetectorApi } from './device-detector-api';
+import { DeviceDetectorApi } from '@annoto/widget-api';
 
 declare const mw: {
     isMobileDevice: () => boolean,

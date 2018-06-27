@@ -58,5 +58,8 @@
     "prep:major": "npm run build && npm version major",
     "prep:minor": "npm run build && npm version minor",
     "prep:patch": "npm run build && npm version patch"
+  },
+  "dependencies": {
+    "@annoto/widget-api": "^1.6.18"
   }
 }

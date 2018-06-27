@@ -1,8 +1,7 @@
 import '../../styles/plugin.scss';
 import { PluginCtx, PluginConfiguration, Player } from './mw';
 import { Logger } from './logger';
-import { AnnotoConfig } from './config';
-import { AnnotoApi } from './annoto-api';
+import { AnnotoConfig, AnnotoApi } from '@annoto/widget-api';
 import { PlayerAdaptor } from './player-adaptor';
 import { DeviceDetector } from './device-detector';
 
@@ -183,6 +182,7 @@ export class AnnotoPlugin {
             locale,
             clientId: this.ctx.getConfig('customerKey'),
             position: this.ctx.getConfig('position'),
+            launchSource: this.ctx.getConfig('launchSource'),
             rtl: Boolean(rtlLocales.indexOf(locale) !== -1),
             align: {
                 horizontal: 'inner',

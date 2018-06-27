@@ -1,6 +1,10 @@
 import { Player, MediaEtry, PluginCtx } from './mw';
-import { PlayerAdaptorApi, PlayerEventCallback, ControlsDescriptor } from './player-adaptor-api';
 import { nextTick } from '../util/next-tick';
+import {
+    PlayerAdaptorApi,
+    ControlsDescriptor,
+    PlayerEventCallback,
+} from '@annoto/widget-api/lib/player-adaptor';
 
 declare const mw: {
     getMwEmbedPath: () => string;
