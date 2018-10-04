@@ -21,6 +21,7 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
 
     private isAutoplay = false;
     private mediaId: string;
+    private timelineContainer: HTMLElement;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
@@ -84,27 +85,6 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
 
     public controlsDescriptor() : ControlsDescriptor {
         return null;
-        /*return {
-            height: 20,
-            hideOnPlay: false,
-            shownOnLoad: true,
-            track: {
-                marginRight: 0,
-                marginLeft: 0,
-            },
-            fullScreen: {
-                height: 20,
-                track: {
-                    marginRight: 0,
-                    marginLeft: 0,
-                },
-            },
-            mouse: {
-                trackMove: false,
-                hideOnLeave: false,
-                showOnEnter: true,
-            },
-        };*/
     }
 
     public fullScreen() : boolean {
@@ -127,6 +107,20 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
 
     public controlsHeight() : number | string {
         return this.player.getControlBarContainer().height();
+    }
+
+    public controlsElement() {
+        if (this.timelineContainer) {
+            return this.timelineContainer;
+        }
+        this.timelineContainer = document.createElement('DIV');
+        this.timelineContainer.setAttribute('style', `
+            width: 100%;
+            position: absolute;
+            bottom: 100%;
+        `);
+        this.player.getControlBarContainer().prepend(this.timelineContainer);
+        return this.timelineContainer;
     }
 
     public trackMarginLeft() : number | string {
@@ -174,10 +168,10 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         this.on('resizeEvent', cb);
     }
 
+    // Implement dummy controls state API
     public onControlsShow(cb: PlayerEventCallback) {
         // this.on('showPlayerControls', cb);
     }
-
     public onControlsHide(cb: PlayerEventCallback) {
         // this.on('hidePlayerControls', cb);
     }
