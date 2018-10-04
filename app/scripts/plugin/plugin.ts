@@ -25,7 +25,6 @@ export class AnnotoPlugin {
     private player: Player;
     private ctx: PluginCtx;
     private $el: JQuery;
-    private hadScrubber: boolean = true;
     private options: AnnotoPluginOptions;
     private bootedWidget: boolean = false;
     private annotoApi: AnnotoApi;
@@ -49,9 +48,6 @@ export class AnnotoPlugin {
         demoMode: true,
         position: 'right',
         locale: 'en',
-        hideScrubber: false,
-        scrubberHeight: 5,
-        scrubberColor: '#2ec7e1',
     };
 
     public isSafeEnviornment() : boolean {
@@ -79,11 +75,6 @@ export class AnnotoPlugin {
         this.player = this.ctx.getPlayer();
         this.adaptor = new PlayerAdaptor(ctx);
         this.deviceDetector = new DeviceDetector();
-
-        if (this.ctx.getConfig('hideScrubber')) {
-            const scrubber = this.player.getPluginInstance('scrubber');
-            this.hadScrubber = !!scrubber && scrubber.safe && !scrubber.isDisabled;
-        }
 
         this.bootWidget();
     }
@@ -131,39 +122,6 @@ export class AnnotoPlugin {
         this.ctx._super();
     }
 
-    private disableScrubber() {
-        if (!this.player) {
-            Logger.warn('could not disable scrubber - player missing');
-            return;
-        }
-        this.player.setKDPAttribute('scrubber', 'visible', false);
-        const scrubberPlugin = this.player.getPluginInstance('scrubber');
-        if (!scrubberPlugin) {
-            return;
-        }
-        scrubberPlugin.hide();
-        scrubberPlugin.onDisable();
-    }
-
-    private enableScrubber() {
-        if (!this.hadScrubber) {
-            return;
-        }
-        if (!this.player) {
-            Logger.warn('could not enable scrubber - player missing');
-            return;
-        }
-
-        const scrubberPlugin = this.player.getPluginInstance('scrubber');
-        if (!scrubberPlugin) {
-            return;
-        }
-        scrubberPlugin.show();
-        scrubberPlugin.onEnable();
-        this.player.setKDPAttribute('scrubber', 'visible', true);
-    }
-
-
     private bootWidget() {
         if (this.bootedWidget) {
             return;
@@ -196,13 +154,7 @@ export class AnnotoPlugin {
                         api: this.adaptor,
                     },
                     timeline: {
-                        embedded: false,
                         overlayVideo: true,
-                        scrubberAlwaysOn: this.ctx.getConfig('hideScrubber'),
-                        scrubberHeight: Math.min(
-                            5,
-                            Math.max(2, this.ctx.getConfig('scrubberHeight'))),
-                        scrubberColor: this.ctx.getConfig('scrubberColor'),
                     },
                 },
             ],
@@ -216,9 +168,6 @@ export class AnnotoPlugin {
         this.bootedWidget = true;
         Annoto.on('ready', (api: AnnotoApi) => {
             this.annotoApi = api;
-            if (this.ctx.getConfig('hideScrubber')) {
-                this.disableScrubber();
-            }
             this.annotoApi.registerDeviceDetector(this.deviceDetector);
             this.player.triggerHelper('annotoPluginReady', api);
         });
@@ -226,22 +175,14 @@ export class AnnotoPlugin {
 
     private loadWidget() {
         if (this.annotoApi) {
-            return this.annotoApi.load(this.config).then(() => {
-                if (this.ctx.getConfig('hideScrubber')) {
-                    this.disableScrubber();
-                }
-            });
+            return this.annotoApi.load(this.config);
         }
         return Promise.reject(new Error('API not ready'));
     }
 
     private closeWidget() : Promise<void> {
         if (this.annotoApi) {
-            return this.annotoApi.close().then(() => {
-                if (this.ctx.getConfig('hideScrubber')) {
-                    this.enableScrubber();
-                }
-            });
+            return this.annotoApi.close();
         }
         return Promise.resolve();
     }

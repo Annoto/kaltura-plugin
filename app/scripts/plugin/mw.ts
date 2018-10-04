@@ -9,9 +9,6 @@ interface PluginConfiguration {
     demoMode: boolean;
     position: string;
     locale?: string;
-    hideScrubber: boolean;
-    scrubberHeight: number;
-    scrubberColor: string;
 }
 
 interface AnnotoPluginCtx {
