@@ -12,7 +12,8 @@ declare const mw: {
         serviceBase: string,
         serviceUrl: string,
         statsServiceUrl: string,       
-    }
+    },
+    isMobileDevice: () => boolean,
 };
 
 export class PlayerAdaptor implements PlayerAdaptorApi {
@@ -87,8 +88,9 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         return null;
     }
 
+    // If device is mobile, use the fullscreen annoot UX.
     public fullScreen() : boolean {
-        return this.player.layoutBuilder.isInFullScreen();
+        return mw.isMobileDevice() || this.player.layoutBuilder.isInFullScreen();
     }
 
     public width() : number | string {

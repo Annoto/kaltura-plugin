@@ -6,9 +6,6 @@ import { PlayerAdaptor } from './player-adaptor';
 import { DeviceDetector } from './device-detector';
 
 declare const $: JQueryStatic;
-declare const mw: {
-    isMobileDevice: () => boolean,
-};
 
 declare const Annoto: {
     boot: (config: AnnotoConfig) => void;
@@ -51,11 +48,6 @@ export class AnnotoPlugin {
     };
 
     public isSafeEnviornment() : boolean {
-        if (mw.isMobileDevice()) {
-            Logger.warn('Mobile Devices are not supported at the moment');
-            return false;
-        }
-
         const width = window.innerWidth
         || document.documentElement.clientWidth
         || document.body.clientWidth;
