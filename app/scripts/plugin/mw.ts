@@ -1,13 +1,15 @@
 
 interface PluginConfiguration {
+    plugin?: true;
+    iframeHTML5Js?: string;
     parent?: string;
     order?: number;
     displayImportance?: string;
     align?: string;
     visible?: boolean;
-    customerKey: string;
-    demoMode: boolean;
-    position: string;
+    customerKey?: string;
+    demoMode?: boolean;
+    position?: string;
     locale?: string;
 }
 

@@ -12,26 +12,19 @@ declare const Annoto: {
     on: (event: string, cb: (arg: AnnotoApi | void) => void) => void;
 };
 
-export interface AnnotoPluginOptions {
-    bootUrl: string;
-}
-
-
 export class AnnotoPlugin {
 
     private player: Player;
     private ctx: PluginCtx;
     private $el: JQuery;
-    private options: AnnotoPluginOptions;
     private bootedWidget: boolean = false;
     private annotoApi: AnnotoApi;
     private config: AnnotoConfig;
     private adaptor: PlayerAdaptor;
     private deviceDetector: DeviceDetector;
 
-    constructor(ctx: PluginCtx, options: AnnotoPluginOptions) {
+    constructor(ctx: PluginCtx) {
         this.ctx = ctx;
-        this.options = options;
     }
 
     static defaultConfig: PluginConfiguration = {
@@ -119,12 +112,7 @@ export class AnnotoPlugin {
             return;
         }
 
-        if (!this.ctx.getConfig('demoMode') && !this.customerKeyIsValid()) {
-            Logger.warn('customerKey must be specified if demoMode is disabled');
-            return;
-        }
-
-        const demoMode = this.ctx.getConfig('demoMode') && !this.customerKeyIsValid();
+        const demoMode = this.ctx.getConfig('demoMode') || !this.customerKeyIsValid();
         const locale = this.ctx.getConfig('locale');
         const rtlLocales = ['he'];
         this.config = {
@@ -138,6 +126,7 @@ export class AnnotoPlugin {
                 horizontal: 'inner',
                 vertical: 'top',
             },
+            ux: {},
             widgets: [
                 {
                     player: {
@@ -156,13 +145,29 @@ export class AnnotoPlugin {
             return;
         }
 
-        Annoto.boot(this.config);
-        this.bootedWidget = true;
-        Annoto.on('ready', (api: AnnotoApi) => {
-            this.annotoApi = api;
-            this.annotoApi.registerDeviceDetector(this.deviceDetector);
-            this.player.triggerHelper('annotoPluginReady', api);
-        });
+        const setupEventParams: {
+            config: AnnotoConfig,
+            await?: (cb: () => void) => void, 
+        } = {
+            config: this.config,
+        };
+        this.player.triggerHelper('annotoPluginSetup', setupEventParams);
+
+        const doBoot = () => {
+            Annoto.boot(this.config);
+            this.bootedWidget = true;
+            Annoto.on('ready', (api: AnnotoApi) => {
+                this.annotoApi = api;
+                this.annotoApi.registerDeviceDetector(this.deviceDetector);
+                this.player.triggerHelper('annotoPluginReady', this.annotoApi);
+            });
+        };
+
+        if (setupEventParams.await) {
+            setupEventParams.await(() => doBoot());
+        } else {
+            doBoot();
+        }
     }
 
     private loadWidget() {

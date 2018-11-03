@@ -1,8 +1,12 @@
-import { AnnotoPluginCtx, PluginCtx } from './mw';
-import { AnnotoPlugin, AnnotoPluginOptions } from './plugin';
+import { AnnotoPluginCtx, PluginCtx, PluginConfiguration } from './mw';
+import { AnnotoPlugin } from './plugin';
 import { Logger } from './logger';
 
-export { AnnotoPluginOptions };
+export { PluginConfiguration };
+
+export interface PluginInitParams {
+    bootUrl: string;
+}
 
 declare const mw: {
     kalturaPluginWrapper: any,
@@ -11,7 +15,7 @@ declare const mw: {
 };
 declare const $: JQueryStatic;
 
-export function init(options: AnnotoPluginOptions) {
+export function init(params: PluginInitParams) {
 
     let plugin: AnnotoPlugin;
 
@@ -25,7 +29,7 @@ export function init(options: AnnotoPluginOptions) {
         destroy: () => plugin.destroy(),
     };
 
-    plugin = new AnnotoPlugin(ctx as PluginCtx, options);
+    plugin = new AnnotoPlugin(ctx as PluginCtx);
 
     const initWrapper = function () {
         mw.PluginManager.add('annoto', mw.KBaseComponent.extend(ctx));
@@ -33,7 +37,7 @@ export function init(options: AnnotoPluginOptions) {
 
     mw.kalturaPluginWrapper(initWrapper);
 
-    $.getScript(options.bootUrl).done(() => {
+    $.getScript(params.bootUrl).done(() => {
         Logger.log('loaded annoto bootstrap');
         plugin.bootWidgetIfReady();
         // plugin.bootConfigIfReady();
