@@ -63,6 +63,6 @@
     "prep:patch": "npm run build && npm version patch"
   },
   "dependencies": {
-    "@annoto/widget-api": "^1.7.4"
+    "@annoto/widget-api": "^1.7.6"
   }
 }
