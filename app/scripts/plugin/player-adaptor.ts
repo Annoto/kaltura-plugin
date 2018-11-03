@@ -5,6 +5,7 @@ import {
     ControlsDescriptor,
     PlayerEventCallback,
 } from '@annoto/widget-api/lib/player-adaptor';
+import { MediaDetails } from '@annoto/widget-api';
 
 declare const mw: {
     getMwEmbedPath: () => string;
@@ -74,10 +75,31 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         if (!partnerId || !entry.id) {
             return;
         }
-        const kApi = mw.kApiGetPartnerClient();
+        return `/partnerId/${partnerId}/entryId/${entry.id}`;
+
+        /* const kApi = mw.kApiGetPartnerClient();
         const sUrl = (kApi && kApi.serviceUrl) ? kApi.serviceUrl : 'http://cdnapi.kaltura.com';
     
-        return `${sUrl}/partnerId/${partnerId}/entryId/${entry.id}`;
+        return `${sUrl}/partnerId/${partnerId}/entryId/${entry.id}`; */
+    }
+
+    public mediaMetadata(): MediaDetails {
+        const entry: MediaEtry = this.getProperty('{mediaProxy.entry}');
+        if (!entry) {
+            return;
+        }
+        return {
+            title: entry.name,
+            description: entry.description,
+            authorName: entry.userId || entry.creatorId,
+            thumbnails: {
+                default: entry.thumbnailUrl,
+            },
+        };
+    }
+
+    public isLive(): boolean {
+        return !!this.getProperty('{mediaProxy.isLive}');
     }
 
     public autoplay() : boolean {

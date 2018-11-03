@@ -58,7 +58,16 @@ interface MediaEtry {
     dataUrl: string;
     partnerId: number;
     id: string;
+    userId?: string;
     thumbnailUrl: string;
+    name: string;
+    description?: string;
+    creditUserName?: string;
+    creatorId?: string;
+    downloadUrl?: string;
+    groupId?: string;
+    searchText?: string;
+    categories?: string;
 }
 
 interface PluginCtx extends AnnotoPluginCtx {
