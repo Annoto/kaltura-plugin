@@ -55,6 +55,7 @@
     "build": "webpack --env.type=prod --progress --profile --colors",
     "build:staging": "webpack --env.type=staging --progress --profile --colors",
     "build:dev": "webpack --env.type=dev --progress --profile --colors",
+    "build:dev-https": "webpack --env.type=dev --env.https=1 --progress --profile --colors",
     "prep:major": "npm run build && npm version major",
     "prep:minor": "npm run build && npm version minor",
     "prep:patch": "npm run build && npm version patch"

@@ -7,7 +7,7 @@ const CommonConfig = require('./webpack.common');
 
 module.exports = function (env) {
     const commonEnv = env;
-    commonEnv.appURL = 'http://localhost:9000';
+    commonEnv.appURL = `${env.https ? 'https' : 'http'}://localhost:9000`;
     return Merge(CommonConfig(commonEnv), {
         devtool: 'cheap-module-inline-source-map',
         devServer: {
