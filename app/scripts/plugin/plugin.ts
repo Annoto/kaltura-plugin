@@ -49,7 +49,7 @@ export class AnnotoPlugin {
         || document.documentElement.clientHeight
         || document.body.clientHeight;
 
-        if ((width < 320) || (height < 360)) {
+        if ((width < 320) || (height < 225)) {
             return false;
         }
         return true;
