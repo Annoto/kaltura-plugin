@@ -35,7 +35,7 @@ export class AnnotoPlugin {
 
         // custom property and custom value
         customerKey: '',
-        demoMode: true,
+        demoMode: false,
         position: 'right',
         locale: 'en',
     };
