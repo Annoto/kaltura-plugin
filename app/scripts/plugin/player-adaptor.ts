@@ -12,7 +12,7 @@ declare const mw: {
     kApiGetPartnerClient: () => {
         serviceBase: string,
         serviceUrl: string,
-        statsServiceUrl: string,       
+        statsServiceUrl: string,
     },
     isMobileDevice: () => boolean,
 };
@@ -79,7 +79,7 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
 
         /* const kApi = mw.kApiGetPartnerClient();
         const sUrl = (kApi && kApi.serviceUrl) ? kApi.serviceUrl : 'http://cdnapi.kaltura.com';
-    
+
         return `${sUrl}/partnerId/${partnerId}/entryId/${entry.id}`; */
     }
 

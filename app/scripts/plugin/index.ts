@@ -46,6 +46,3 @@ export function init(params: PluginInitParams) {
     });
 
 }
-
-
-

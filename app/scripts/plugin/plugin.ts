@@ -147,7 +147,7 @@ export class AnnotoPlugin {
 
         const setupEventParams: {
             config: AnnotoConfig,
-            await?: (cb: () => void) => void, 
+            await?: (cb: () => void) => void,
         } = {
             config: this.config,
         };
