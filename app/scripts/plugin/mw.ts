@@ -48,6 +48,8 @@ interface Player extends Element {
     getPlayerPoster: () => JQuery;
     getPluginInstance: (name: string) => PluginCtx;
     triggerHelper: (event: string, arg?: any) => void;
+    bindHelper: (event: string, cb: Function) => void;
+    unbindHelper: (event: string) => void;
 
     layoutBuilder: {
         isInFullScreen: () => boolean;

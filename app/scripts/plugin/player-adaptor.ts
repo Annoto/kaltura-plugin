@@ -24,6 +24,10 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
     private isAutoplay = false;
     private mediaId: string;
     private timelineContainer: HTMLElement;
+    private events: {
+        event: string;
+        fn: PlayerEventCallback;
+    }[] = [];
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
@@ -36,7 +40,8 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
     }
 
     public remove() {
-        this.ctx.unbind();
+        this.events.forEach(ev => this.ctx.unbind(ev.event));
+        this.events = [];
     }
 
     public play() {
@@ -235,11 +240,11 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         return this.player.evaluate(property);
     }
 
-    private on(event: string, cb: PlayerEventCallback) {
-        this.ctx.bind(event, cb);
-    }
-
-    private off(event: string) {
-        this.ctx.unbind(event);
+    private on(event: string, fn: PlayerEventCallback) {
+        this.ctx.bind(event, fn);
+        this.events.push({
+            event,
+            fn,
+        });
     }
 }

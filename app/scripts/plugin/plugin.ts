@@ -1,16 +1,13 @@
 import '../../styles/plugin.scss';
 import { PluginCtx, PluginConfiguration, Player } from './mw';
 import { Logger } from './logger';
-import { AnnotoConfig, AnnotoApi } from '@annoto/widget-api';
+import { AnnotoConfig, AnnotoApi, Annoto as AnnotoMain, AnnotoUxEvent } from '@annoto/widget-api';
 import { PlayerAdaptor } from './player-adaptor';
 import { DeviceDetector } from './device-detector';
 
 declare const $: JQueryStatic;
 
-declare const Annoto: {
-    boot: (config: AnnotoConfig) => void;
-    on: (event: string, cb: (arg: AnnotoApi | void) => void) => void;
-};
+declare const Annoto: AnnotoMain;
 
 export class AnnotoPlugin {
 
@@ -22,6 +19,8 @@ export class AnnotoPlugin {
     private config: AnnotoConfig;
     private adaptor: PlayerAdaptor;
     private deviceDetector: DeviceDetector;
+    private openState: boolean = false;
+    private disabledState: boolean = false;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
@@ -89,18 +88,22 @@ export class AnnotoPlugin {
     }*/
 
     public onEnable() {
-        this.loadWidget().then(() => Logger.log('Enabled')).catch((err) => {
-            Logger.error('onEnable: ', err);
-        });
+        this.disabledState = false;
+        Logger.log('Enabled');
+        if (this.openState) {
+            setTimeout(() => this.showWidget(), 50);
+        }
     }
 
     public onDisable() {
-        this.closeWidget().then(() => Logger.log('Disabled')).catch((err) => {
+        this.disabledState = true;
+        this.hideWidget().then(() => Logger.log('Disabled')).catch((err) => {
             Logger.error('onDisable: ', err);
         });
     }
 
     public destroy() {
+        this.disabledState = true;
         this.closeWidget().then(() => Logger.log('destroyed')).catch((err) => {
             Logger.error('destroying: ', err);
         });
@@ -124,7 +127,7 @@ export class AnnotoPlugin {
             rtl: Boolean(rtlLocales.indexOf(locale) !== -1),
             align: {
                 horizontal: 'inner',
-                vertical: 'top',
+                vertical: 'center',
             },
             ux: {},
             widgets: [
@@ -161,6 +164,16 @@ export class AnnotoPlugin {
                 this.annotoApi.registerDeviceDetector(this.deviceDetector);
                 this.player.triggerHelper('annotoPluginReady', this.annotoApi);
             });
+            Annoto.on('ux', (uxEvent: AnnotoUxEvent) => {
+                if (this.disabledState || this.ctx.isDisabled) {
+                    return;
+                }
+                if (uxEvent.name === 'widget:show') {
+                    this.openState = true;
+                } else if (uxEvent.name === 'widget:hide') {
+                    this.openState = false;
+                }
+            });
         };
 
         if (setupEventParams.await) {
@@ -180,6 +193,20 @@ export class AnnotoPlugin {
     private closeWidget() : Promise<void> {
         if (this.annotoApi) {
             return this.annotoApi.close();
+        }
+        return Promise.resolve();
+    }
+
+    private hideWidget() : Promise<void> {
+        if (this.annotoApi) {
+            return this.annotoApi.hide();
+        }
+        return Promise.resolve();
+    }
+
+    private showWidget() : Promise<void> {
+        if (this.annotoApi) {
+            return this.annotoApi.show();
         }
         return Promise.resolve();
     }
