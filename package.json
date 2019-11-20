@@ -54,6 +54,7 @@
     "start": "webpack-dev-server --env.type=dev --progress --profile --colors",
     "start-https": "webpack-dev-server --env.type=dev --progress --profile --colors --env.https=1 --https",
     "start-staging": "webpack-dev-server --env.type=dev_staging --progress --profile --colors --https",
+    "start:prod": "webpack-dev-server --env.type=dev_prod --progress --profile --colors",
     "build:prod": "webpack --env.type=prod --progress --profile --colors",
     "build": "webpack --env.type=staging --progress --profile --colors",
     "deploy": "gulp publish",
