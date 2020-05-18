@@ -3,7 +3,7 @@ import { PluginCtx, PluginConfiguration, Player } from './mw';
 import { Logger } from './logger';
 import { AnnotoConfig, AnnotoApi, Annoto as AnnotoMain, AnnotoUxEvent } from '@annoto/widget-api';
 import { PlayerAdaptor } from './player-adaptor';
-import { DeviceDetector } from './device-detector';
+// import { DeviceDetector } from './device-detector';
 
 declare const $: JQueryStatic;
 
@@ -18,7 +18,7 @@ export class AnnotoPlugin {
     private annotoApi: AnnotoApi;
     private config: AnnotoConfig;
     private adaptor: PlayerAdaptor;
-    private deviceDetector: DeviceDetector;
+    // private deviceDetector: DeviceDetector;
     private openState: boolean = false;
     private disabledState: boolean = false;
 
@@ -58,7 +58,7 @@ export class AnnotoPlugin {
         this.ctx = ctx;
         this.player = this.ctx.getPlayer();
         this.adaptor = new PlayerAdaptor(ctx);
-        this.deviceDetector = new DeviceDetector();
+        // this.deviceDetector = new DeviceDetector();
 
         this.bootWidget();
     }
@@ -159,7 +159,7 @@ export class AnnotoPlugin {
             this.bootedWidget = true;
             Annoto.on('ready', (api: AnnotoApi) => {
                 this.annotoApi = api;
-                this.annotoApi.registerDeviceDetector(this.deviceDetector);
+                // this.annotoApi.registerDeviceDetector(this.deviceDetector);
                 this.player.triggerHelper('annotoPluginReady', this.annotoApi);
             });
             Annoto.on('ux', (uxEvent: AnnotoUxEvent) => {
