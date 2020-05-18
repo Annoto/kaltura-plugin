@@ -6,6 +6,7 @@ import {
     PlayerEventCallback,
 } from '@annoto/widget-api/lib/player-adaptor';
 import { MediaDetails } from '@annoto/widget-api';
+import { Logger } from './logger';
 
 declare const mw: {
     getMwEmbedPath: () => string;
@@ -57,11 +58,13 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
     }
 
     public currentTime() : number {
-        return this.getProperty('{video.player.currentTime}');
+        const t = this.getProperty('{video.player.currentTime}');
+        return this.validateTime(t, '{video.player.currentTime}');
+
     }
 
     public duration() : number {
-        return this.getProperty('{duration}');
+        return this.validateTime(this.getProperty('{duration}'), '{duration}');
     }
 
     public paused() : boolean {
@@ -238,6 +241,20 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
 
     private getProperty(property: string) : any {
         return this.player.evaluate(property);
+    }
+
+    protected validateTime(t: string | number, evaluatedProp: string): number {
+        let ts = t;
+        if (typeof t === 'string') {
+            ts = parseFloat(t);
+        }
+        // we expect time to be in seconds.
+        // Sometimes for live the player reports unix epoch time, filer it out.
+        if (ts > 1000 * 60 * 60) {
+            Logger.warn(`invalid time: ${ts} reported by: ${evaluatedProp}`);
+            return 0;
+        }
+        return ts as number;
     }
 
     private on(event: string, fn: PlayerEventCallback) {
