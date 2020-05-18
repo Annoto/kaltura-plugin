@@ -128,6 +128,7 @@ export class AnnotoPlugin {
                 vertical: 'center',
             },
             ux: {},
+            zIndex: 1000,
             widgets: [
                 {
                     player: {
