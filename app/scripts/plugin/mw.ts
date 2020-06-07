@@ -1,5 +1,7 @@
+import { LaunchSourceConfig } from '@annoto/widget-api/lib/config';
 
 interface PluginConfiguration {
+    // Standard Kaltura plugin config
     plugin?: true;
     iframeHTML5Js?: string;
     parent?: string;
@@ -7,10 +9,15 @@ interface PluginConfiguration {
     displayImportance?: string;
     align?: string;
     visible?: boolean;
+
+    // Annoto Config
     customerKey?: string;
+    launchSource?: LaunchSourceConfig;
     demoMode?: boolean;
     position?: string;
     locale?: string;
+    sidePanelLayout?: boolean;
+    sidePanelFullScreen?: boolean;
 }
 
 interface AnnotoPluginCtx {
@@ -36,6 +43,7 @@ interface Player extends Element {
     setKDPAttribute: (selector: string, property: string, val: any) => void;
     isPlaying: () => boolean;
     isInSequence: () => boolean;  // is Playing Ad
+    isPlaylistScreen: () => boolean;
 
     getWidth: () => number;
     getHeight: () => number;
@@ -80,6 +88,7 @@ interface PluginCtx extends AnnotoPluginCtx {
     hide: () => void;
     show: () => void;
     getCssClass: () => string;
+    getBtn: () => any;
     isDisabled: boolean;
     safe: boolean;
     _super: () => void;

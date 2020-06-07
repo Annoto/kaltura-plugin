@@ -1,7 +1,75 @@
-.mwPlayerContainer {
-    .controlBarContainer {
-        .scrubber {
-            //display: none !important;
+$widgetWidth: 360px;
+$widgetFsWidth: 370px;
+$playlistWidth: 320px;
+$minibarWidth: 64px;
+
+.nnk-side-panel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+@media only screen and (min-width: 720px) {
+    .nnk-side-panel {
+        &:not(.nnk-fullscreen):not(.nnk-hidden),
+        &.nnk-always-on:not(.nnk-hidden) {
+            .mwPlayerContainer {
+                float: left;
+                width: calc(100% - #{$widgetWidth});
+                transition: width ease-in-out .2s;
+                &.fullscreen {
+                    width: calc(100% - #{$widgetFsWidth}) !important;
+                    position: relative !important;
+                }
+            }
+            &.nnk-left {
+                .mwPlayerContainer {
+                    float: right;
+                }
+            }
+        }
+
+        &:not(.nnk-hidden):not(.nnk-minimised) {
+            > #annoto-app { // apply only when not in full screen
+                .annoto-overlay {
+                    .annoto-widget-container > div.nn-color-background,
+                    .annoto-resizable {
+                            border-radius: 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media only screen and (min-width: 1100px) {
+    .nnk-playlist-layout {
+        .playlistInterface {
+            .nnk-side-panel:not(.nnk-fullscreen) {
+                position: relative;
+                width: calc(100% - #{$playlistWidth}) !important;
+                float: left;
+                &:not(.nnk-fullscreen):not(.nnk-hidden),
+                &.nnk-always-on:not(.nnk-hidden) {
+                    .mwPlayerContainer {
+                        width: calc(100% - #{$widgetWidth}) !important;
+                    }
+                }
+                &.nnk-hidden {
+                    .mwPlayerContainer {
+                        width: calc(100% - #{$minibarWidth}) !important;
+                    }
+                }
+            }
+            .nnk-side-panel.nnk-left {
+                .mwPlayerContainer {
+                    float: right !important;
+                }
+            }
+
+            .playlistAPI.k-vertical {
+                width: $playlistWidth !important;
+            }
         }
     }
 }

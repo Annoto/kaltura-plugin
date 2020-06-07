@@ -155,6 +155,10 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         return this.timelineContainer;
     }
 
+    public embeddableElement() {
+        return $('.nnk-side-panel').get(0) || $('.mwPlayerContainer').get(0);
+    }
+
     public trackMarginLeft() : number | string {
         return 0;
     }
