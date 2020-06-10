@@ -168,6 +168,7 @@ export class AnnotoPlugin {
 
         const demoMode = this.ctx.getConfig('demoMode') || !this.customerKeyIsValid();
         const locale = this.ctx.getConfig('locale');
+        const disableTimeline = this.player.isLive() && !this.player.isDVR();
         this.config = {
             demoMode,
             locale,
@@ -179,6 +180,9 @@ export class AnnotoPlugin {
                 vertical: 'center',
             },
             ux: {},
+            features: {
+                timeline: !disableTimeline,
+            },
             zIndex: 1000,
             fsZIndex: 10000,
             widgets: [
