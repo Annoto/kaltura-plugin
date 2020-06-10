@@ -44,6 +44,15 @@ interface Player extends Element {
     isPlaying: () => boolean;
     isInSequence: () => boolean;  // is Playing Ad
     isPlaylistScreen: () => boolean;
+    /**
+     * Check if Dvr is supported for live stream
+     * if not supported, video.player.currentTime will provide seconds since Unix Epoch instead of seconds from start of stream
+     */
+    isDVR: () => boolean | number;
+    /**
+     * Check if it's a live stream
+     */
+    isLive: () => boolean;
 
     getWidth: () => number;
     getHeight: () => number;
@@ -68,6 +77,9 @@ interface MediaEtry {
     dataUrl: string;
     partnerId: number;
     id: string;
+    rootEntryId?: string;
+    redirectEntryId?: string;
+    recordedEntryId?: string;
     userId?: string;
     thumbnailUrl: string;
     name: string;

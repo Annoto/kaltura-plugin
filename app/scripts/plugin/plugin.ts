@@ -147,6 +147,20 @@ export class AnnotoPlugin {
         this.isSidePanelLayout = isSidePanelLayout;
     }
 
+    private listenForEntryUpdates() {
+        this.player.bindHelper('annotoPluginEntryUpdate', (ev: any, entry: MediaEtry) => {
+            const etnryId = this.player.evaluate('{mediaProxy.entry.id}');
+            if (entry && entry.id !== etnryId) {
+                // do not allow entierly different entry changes
+                // this is intended for entry object updates
+                return;
+            }
+            if (this.adaptor && entry.recordedEntryId) {
+                this.adaptor.updateMediaEntry(entry);
+            }
+        });
+    }
+
     private bootWidget() {
         if (this.bootedWidget) {
             return;
@@ -225,6 +239,7 @@ export class AnnotoPlugin {
                     }
                 }
             });
+            this.listenForEntryUpdates();
         };
 
         if (setupEventParams.await) {

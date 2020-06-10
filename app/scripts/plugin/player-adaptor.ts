@@ -6,7 +6,6 @@ import {
     PlayerEventCallback,
 } from '@annoto/widget-api/lib/player-adaptor';
 import { MediaDetails } from '@annoto/widget-api';
-import { Logger } from './logger';
 
 declare const mw: {
     getMwEmbedPath: () => string;
@@ -29,6 +28,8 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         event: string;
         fn: PlayerEventCallback;
     }[] = [];
+    protected onMediaChangeCb: PlayerEventCallback;
+    protected updatedEntry: MediaEtry;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
@@ -36,13 +37,14 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
     }
 
     public init(element: Element) {
-        this.updateMediaId();
+        this.mediaId = this.entryId();
         return true;
     }
 
     public remove() {
         this.events.forEach(ev => this.ctx.unbind(ev.event));
         this.events = [];
+        this.onMediaChangeCb = undefined;
     }
 
     public play() {
@@ -58,13 +60,16 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
     }
 
     public currentTime() : number {
-        const t = this.getProperty('{video.player.currentTime}');
-        return this.validateTime(t, '{video.player.currentTime}');
+        // Kaltura live without DVR does not support valid current playback time
+        if (this.player.isLive() && !this.player.isDVR()) {
+            return 0;
+        }
+        return this.getTimeProperty('{video.player.currentTime}');
 
     }
 
     public duration() : number {
-        return this.validateTime(this.getProperty('{duration}'), '{duration}');
+        return this.getTimeProperty('{duration}');
     }
 
     public paused() : boolean {
@@ -72,7 +77,7 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
     }
 
     public mediaSrc() : string {
-        const entry: MediaEtry = this.getProperty('{mediaProxy.entry}');
+        const entry: MediaEtry = this.mediaEntry();
         if (!entry) {
             return;
         }
@@ -80,19 +85,16 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         if (!partnerId) {
             partnerId = this.player.kpartnerid;
         }
-        if (!partnerId || !entry.id) {
+        const id = this.entryId();
+        if (!partnerId || !id) {
             return;
         }
-        return `/partnerId/${partnerId}/entryId/${entry.id}`;
 
-        /* const kApi = mw.kApiGetPartnerClient();
-        const sUrl = (kApi && kApi.serviceUrl) ? kApi.serviceUrl : 'http://cdnapi.kaltura.com';
-
-        return `${sUrl}/partnerId/${partnerId}/entryId/${entry.id}`; */
+        return `/partnerId/${partnerId}/entryId/${id}`;
     }
 
     public mediaMetadata(): MediaDetails {
-        const entry: MediaEtry = this.getProperty('{mediaProxy.entry}');
+        const entry: MediaEtry = this.mediaEntry();
         if (!entry) {
             return;
         }
@@ -107,7 +109,7 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
     }
 
     public isLive(): boolean {
-        return !!this.getProperty('{mediaProxy.isLive}');
+        return !!this.player.isLive();
     }
 
     public autoplay() : boolean {
@@ -188,7 +190,8 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
     }
 
     public onMediaChange(cb: PlayerEventCallback) {
-        this.on('onChangeMediaDone', () => this.mediaChangeHandle(cb));
+        this.onMediaChangeCb = cb;
+        this.on('onChangeMediaDone', () => this.mediaChangeHandle());
     }
 
     public onFullScreen(cb: (isFullScreen?: boolean) => void) {
@@ -216,27 +219,50 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         this.on('playerError', cb);
     }
 
-    private mediaChangeHandle(cb: PlayerEventCallback) {
+    public updateMediaEntry(entry?: MediaEtry | null) {
+        if (entry || entry === null) {
+            this.updatedEntry = entry;
+        }
+        this.mediaChangeHandle();
+    }
+
+    protected mediaChangeHandle() {
         if (this.player.isInSequence()) {
             return;
         }
 
-        const entry: MediaEtry = this.getProperty('{mediaProxy.entry}');
-        if (this.mediaId !== entry.id) {
-            this.mediaId = entry.id;
-            cb();
+        const entryId = this.entryId();
+        if (this.mediaId !== entryId) {
+            this.mediaId = entryId;
+            if (this.onMediaChangeCb) {
+                this.onMediaChangeCb();
+            }
         }
+    }
+
+    protected mediaEntry(): MediaEtry {
+        return this.updatedEntry || this.getProperty('{mediaProxy.entry}');
+    }
+
+    protected entryId() : string {
+        const entry: MediaEtry = this.mediaEntry();
+        if (!entry) {
+            return;
+        }
+        if (!entry.id) {
+            return;
+        }
+        let id = entry.id;
+        if (this.isLive()) {
+            id = entry.recordedEntryId || entry.id;
+        }
+        return id;
     }
 
     private callIfNotAd(cb: PlayerEventCallback) {
         if (!this.player.isInSequence()) {
             cb();
         }
-    }
-
-    private updateMediaId() {
-        const entry: MediaEtry = this.getProperty('{mediaProxy.entry}');
-        this.mediaId = entry.id;
     }
 
     private exec(action: string, arg?: any) : void {
@@ -247,18 +273,18 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         return this.player.evaluate(property);
     }
 
-    protected validateTime(t: string | number, evaluatedProp: string): number {
-        let ts = t;
+    protected getTimeProperty(evaluatedProp: string): number {
+        const t = this.getProperty(evaluatedProp);
+        let ts: number = t;
         if (typeof t === 'string') {
             ts = parseFloat(t);
         }
-        // we expect time to be in seconds.
+        // we expect time to be in seconds relative to start of stream.
         // Sometimes for live the player reports unix epoch time, filer it out.
         if (ts > 1000 * 60 * 60) {
-            Logger.warn(`invalid time: ${ts} reported by: ${evaluatedProp}`);
             return 0;
         }
-        return ts as number;
+        return ts;
     }
 
     private on(event: string, fn: PlayerEventCallback) {
