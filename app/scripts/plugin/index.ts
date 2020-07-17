@@ -40,7 +40,6 @@ export function init(params: PluginInitParams) {
     $.getScript(params.bootUrl).done(() => {
         Logger.log('loaded annoto bootstrap');
         plugin.bootWidgetIfReady();
-        // plugin.bootConfigIfReady();
     }).fail((err) => {
         Logger.error('loading annoto bootstrap', err);
     });

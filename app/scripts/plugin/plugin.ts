@@ -14,7 +14,9 @@ export class AnnotoPlugin {
     private player: Player;
     private ctx: PluginCtx;
     private $el: JQuery;
-    private bootedWidget: boolean = false;
+    private isWidgetBooted: boolean = false;
+    private isConfigSetup: boolean = false;
+    private isReadyToBoot: boolean = false;
     private annotoApi: AnnotoApi;
     private config: AnnotoConfig;
     private adaptor: PlayerAdaptor;
@@ -61,32 +63,15 @@ export class AnnotoPlugin {
         this.adaptor = new PlayerAdaptor(ctx);
         // this.deviceDetector = new DeviceDetector();
 
-        this.bootWidget();
+        this.setupConfigAndBootIfReady();
     }
 
     public bootWidgetIfReady() {
-        if (this.player) {
-            this.bootWidget();
+        if (!this.annotoBootstrapIsLoaded() || !this.isReadyToBoot || !this.player) {
+            return;
         }
+        this.bootWidget();
     }
-
-    /*public bootConfigIfReady() {
-        if (this.$el) {
-            this.bootWidget();
-        }
-    }
-
-    public getComponent(): JQuery {
-        if (!this.$el) {
-            const cssClasses = this.ctx.getCssClass();
-            this.$el = $('<div></div>')
-                .addClass(`${cssClasses}`)
-                .append('<div id="annoto-app"></div>');
-
-            this.bootWidget();
-        }
-        return this.$el;
-    }*/
 
     public onEnable() {
         this.disabledState = false;
@@ -161,8 +146,8 @@ export class AnnotoPlugin {
         });
     }
 
-    private bootWidget() {
-        if (this.bootedWidget) {
+    private setupConfigAndBootIfReady() {
+        if (this.isConfigSetup) {
             return;
         }
 
@@ -199,10 +184,6 @@ export class AnnotoPlugin {
             ],
         };
 
-        if (!this.annotoBootstrapIsLoaded()) {
-            return;
-        }
-
         const setupEventParams: {
             config: AnnotoConfig,
             await?: (cb: () => void) => void,
@@ -210,40 +191,12 @@ export class AnnotoPlugin {
             config: this.config,
         };
         this.player.triggerHelper('annotoPluginSetup', setupEventParams);
+        this.isConfigSetup = true;
 
         const doBoot = () => {
             this.setupLayout(this.config);
-            Annoto.boot(this.config);
-            this.bootedWidget = true;
-            Annoto.on('ready', (api: AnnotoApi) => {
-                this.annotoApi = api;
-                // this.annotoApi.registerDeviceDetector(this.deviceDetector);
-                this.player.triggerHelper('annotoPluginReady', this.annotoApi);
-            });
-            Annoto.on('ux', (uxEvent: AnnotoUxEvent) => {
-                if (this.disabledState || this.ctx.isDisabled) {
-                    return;
-                }
-                if (uxEvent.name === 'widget:show') {
-                    this.openState = true;
-                    if (this.isSidePanelLayout) {
-                        $('.nnk-side-panel').removeClass('nnk-hidden');
-                        setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
-                    }
-                } else if (uxEvent.name === 'widget:hide') {
-                    this.openState = false;
-                    if (this.isSidePanelLayout) {
-                        $('.nnk-side-panel').addClass('nnk-hidden');
-                        setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
-                    }
-                } else if (uxEvent.name === 'widget:minimise') {
-                    if (this.isSidePanelLayout) {
-                        $('.nnk-side-panel').addClass('nnk-hidden');
-                        setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
-                    }
-                }
-            });
-            this.listenForEntryUpdates();
+            this.isReadyToBoot = true;
+            this.bootWidgetIfReady();
         };
 
         if (setupEventParams.await) {
@@ -251,6 +204,44 @@ export class AnnotoPlugin {
         } else {
             doBoot();
         }
+    }
+
+    private bootWidget() {
+        if (this.isWidgetBooted) {
+            return;
+        }
+
+        Annoto.boot(this.config);
+        this.isWidgetBooted = true;
+        Annoto.on('ready', (api: AnnotoApi) => {
+            this.annotoApi = api;
+            // this.annotoApi.registerDeviceDetector(this.deviceDetector);
+            this.player.triggerHelper('annotoPluginReady', this.annotoApi);
+        });
+        Annoto.on('ux', (uxEvent: AnnotoUxEvent) => {
+            if (this.disabledState || this.ctx.isDisabled) {
+                return;
+            }
+            if (uxEvent.name === 'widget:show') {
+                this.openState = true;
+                if (this.isSidePanelLayout) {
+                    $('.nnk-side-panel').removeClass('nnk-hidden');
+                    setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
+                }
+            } else if (uxEvent.name === 'widget:hide') {
+                this.openState = false;
+                if (this.isSidePanelLayout) {
+                    $('.nnk-side-panel').addClass('nnk-hidden');
+                    setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
+                }
+            } else if (uxEvent.name === 'widget:minimise') {
+                if (this.isSidePanelLayout) {
+                    $('.nnk-side-panel').addClass('nnk-hidden');
+                    setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
+                }
+            }
+        });
+        this.listenForEntryUpdates();
     }
 
     private loadWidget() {
