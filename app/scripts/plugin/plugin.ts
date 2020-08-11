@@ -42,6 +42,8 @@ export class AnnotoPlugin {
         locale: 'en',
         sidePanelLayout: false,
         sidePanelFullScreen: false,
+        disableComments: false,
+        disableNotes: false,
     };
 
     public isSafeEnviornment() : boolean {
@@ -98,9 +100,12 @@ export class AnnotoPlugin {
 
     private setupLayout(config: AnnotoConfig) {
         const ux = config.ux;
+        const features = config.features || {};
+        const noWidget = features.comments === false && features.privateNotes === false;
         const isLeft = !!(config.position === 'left');
         const isPlaylist = this.player.isPlaylistScreen() || $('.playlistInterface').length > 0;
-        const isSidePanelLayout = !!(ux.sidePanelLayout || this.ctx.getConfig('sidePanelLayout')) &&
+        const isSidePanelLayout = !noWidget &&
+            !!(ux.sidePanelLayout || this.ctx.getConfig('sidePanelLayout')) &&
             (!isPlaylist || isPlaylist && screenWidth() > 1100);
         const isFullScreenSidePanel = isSidePanelLayout && !!(ux.sidePanelFullScreen ||
             this.ctx.getConfig('sidePanelFullScreen'));
@@ -154,6 +159,8 @@ export class AnnotoPlugin {
         const demoMode = this.ctx.getConfig('demoMode') || !this.customerKeyIsValid();
         const locale = this.ctx.getConfig('locale');
         const disableTimeline = this.player.isLive() && !this.player.isDVR();
+        const disableComments = this.ctx.getConfig('disableComments');
+        const disableNotes = this.ctx.getConfig('disableNotes');
         this.config = {
             demoMode,
             locale,
@@ -167,6 +174,8 @@ export class AnnotoPlugin {
             ux: {},
             features: {
                 timeline: !disableTimeline,
+                comments: !disableComments,
+                privateNotes: !disableNotes,
             },
             zIndex: 1000,
             fsZIndex: 10000,

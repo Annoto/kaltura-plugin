@@ -18,6 +18,8 @@ interface PluginConfiguration {
     locale?: string;
     sidePanelLayout?: boolean;
     sidePanelFullScreen?: boolean;
+    disableComments?: boolean;
+    disableNotes?: boolean;
 }
 
 interface AnnotoPluginCtx {
