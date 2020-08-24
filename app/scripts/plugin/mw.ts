@@ -18,6 +18,7 @@ interface PluginConfiguration {
     locale?: string;
     sidePanelLayout?: boolean;
     sidePanelFullScreen?: boolean;
+    sidePaneClosedOnLoad?: boolean;
     disableComments?: boolean;
     disableNotes?: boolean;
 }

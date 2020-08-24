@@ -42,6 +42,7 @@ export class AnnotoPlugin {
         locale: 'en',
         sidePanelLayout: false,
         sidePanelFullScreen: false,
+        sidePaneClosedOnLoad: false,
         disableComments: false,
         disableNotes: false,
     };
@@ -102,13 +103,15 @@ export class AnnotoPlugin {
         const ux = config.ux;
         const features = config.features || {};
         const noWidget = features.comments === false && features.privateNotes === false;
-        const isLeft = !!(config.position === 'left');
+        const isLeft = config.position === 'left';
         const isPlaylist = this.player.isPlaylistScreen() || $('.playlistInterface').length > 0;
         const isSidePanelLayout = !noWidget &&
             !!(ux.sidePanelLayout || this.ctx.getConfig('sidePanelLayout')) &&
             (!isPlaylist || isPlaylist && screenWidth() > 1100);
         const isFullScreenSidePanel = isSidePanelLayout && !!(ux.sidePanelFullScreen ||
             this.ctx.getConfig('sidePanelFullScreen'));
+        const sidePaneClosedOnLoad = ux.openOnLoad === false ||
+            this.ctx.getConfig('sidePaneClosedOnLoad');
 
         if (isSidePanelLayout && $('.nnk-side-panel').length === 0) {
             $('.mwPlayerContainer').wrap(`<div class="nnk-side-panel${
@@ -130,6 +133,10 @@ export class AnnotoPlugin {
             ux.maxWidth = 360;
             if (isPlaylist) {
                 $('body').addClass('nnk-playlist-layout');
+            }
+            if (sidePaneClosedOnLoad) {
+                ux.openOnLoad = false;
+                $('.nnk-side-panel').addClass('nnk-hidden');
             }
         }
         ux.sidePanelLayout = isSidePanelLayout;
