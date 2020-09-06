@@ -137,6 +137,8 @@ export class AnnotoPlugin {
             if (sidePaneClosedOnLoad) {
                 ux.openOnLoad = false;
                 $('.nnk-side-panel').addClass('nnk-hidden');
+            } else {
+                this.openState = true;
             }
         }
         ux.sidePanelLayout = isSidePanelLayout;
@@ -235,20 +237,21 @@ export class AnnotoPlugin {
             this.player.triggerHelper('annotoPluginReady', this.annotoApi);
         });
         Annoto.on('ux', (uxEvent: AnnotoUxEvent) => {
-            if (this.disabledState || this.ctx.isDisabled) {
-                return;
-            }
             if (uxEvent.name === 'widget:show') {
-                this.openState = true;
                 if (this.isSidePanelLayout) {
                     $('.nnk-side-panel').removeClass('nnk-hidden');
                     setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
                 }
+                if (!this.disabledState) {
+                    this.openState = true;
+                }
             } else if (uxEvent.name === 'widget:hide') {
-                this.openState = false;
                 if (this.isSidePanelLayout) {
                     $('.nnk-side-panel').addClass('nnk-hidden');
                     setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
+                }
+                if (!this.disabledState) {
+                    this.openState = false;
                 }
             } else if (uxEvent.name === 'widget:minimise') {
                 if (this.isSidePanelLayout) {
