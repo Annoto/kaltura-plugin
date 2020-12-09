@@ -54,13 +54,15 @@ export class AnnotoPlugin {
         || document.documentElement.clientHeight
         || document.body.clientHeight;
 
-        if ((width < 320) || (height < 225)) {
+        if ((width < 320) || (height < 200)) {
+            Logger.warn('Player is too small. Min supported size: 320x200');
             return false;
         }
         return true;
     }
 
     public setup(ctx: PluginCtx) {
+        Logger.log('setup');
         this.ctx = ctx;
         this.player = this.ctx.getPlayer();
         this.adaptor = new PlayerAdaptor(ctx);
@@ -71,6 +73,7 @@ export class AnnotoPlugin {
 
     public bootWidgetIfReady() {
         if (!this.annotoBootstrapIsLoaded() || !this.isReadyToBoot || !this.player) {
+            Logger.log('not ready to bootWidget');
             return;
         }
         this.bootWidget();
