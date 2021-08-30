@@ -4,8 +4,8 @@ import {
     PlayerAdaptorApi,
     ControlsDescriptor,
     PlayerEventCallback,
-} from '@annoto/widget-api/lib/player-adaptor';
-import { MediaDetails } from '@annoto/widget-api';
+    MediaDetails,
+} from '@annoto/widget-api';
 
 declare const mw: {
     getMwEmbedPath: () => string;

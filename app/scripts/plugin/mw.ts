@@ -1,4 +1,4 @@
-import { LaunchSourceConfig } from '@annoto/widget-api/lib/config';
+import { LaunchSourceConfig } from '@annoto/widget-api';
 
 interface PluginConfiguration {
     // Standard Kaltura plugin config
