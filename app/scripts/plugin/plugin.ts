@@ -50,12 +50,8 @@ export class AnnotoPlugin {
     public isSafeEnviornment() : boolean {
         const width = screenWidth();
 
-        const height = window.innerHeight
-        || document.documentElement.clientHeight
-        || document.body.clientHeight;
-
-        if ((width < 320) || (height < 200)) {
-            Logger.warn('Player is too small. Min supported size: 320x200');
+        if ((width < 320)) {
+            Logger.warn('Player is too small. Min supported width: 320px');
             return false;
         }
         return true;
