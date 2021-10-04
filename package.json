@@ -56,13 +56,10 @@
     "start:prod": "webpack-dev-server --env.type=dev_prod --progress --profile --colors",
     "build:prod": "webpack --env.type=prod --progress --profile --colors",
     "build": "webpack --env.type=staging --progress --profile --colors",
-    "deploy": "gulp publish",
-    "deploy:prod": "gulp publish --prod",
+    "deploy": "npm run build && gulp publish",
+    "deploy:prod": "npm run build:prod && gulp publish --prod",
     "build:dev": "webpack --env.type=dev --progress --profile --colors",
-    "build:dev-https": "webpack --env.type=dev --env.https=1 --progress --profile --colors",
-    "prep:major": "npm run build && npm version major",
-    "prep:minor": "npm run build && npm version minor",
-    "prep:patch": "npm run build && npm version patch"
+    "build:dev-https": "webpack --env.type=dev --env.https=1 --progress --profile --colors"
   },
   "dependencies": {
     "@annoto/widget-api": "^1.13.2"
