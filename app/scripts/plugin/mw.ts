@@ -1,4 +1,4 @@
-import { LaunchSourceConfig } from '@annoto/widget-api';
+import { LaunchSourceConfig, ThemeType } from '@annoto/widget-api';
 
 interface PluginConfiguration {
     // Standard Kaltura plugin config
@@ -21,6 +21,7 @@ interface PluginConfiguration {
     sidePaneClosedOnLoad?: boolean;
     disableComments?: boolean;
     disableNotes?: boolean;
+    theme?: ThemeType;
 }
 
 interface AnnotoPluginCtx {

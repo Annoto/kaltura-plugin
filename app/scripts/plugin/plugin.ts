@@ -45,6 +45,7 @@ export class AnnotoPlugin {
         sidePaneClosedOnLoad: false,
         disableComments: false,
         disableNotes: false,
+        theme: 'default',
     };
 
     public isSafeEnviornment() : boolean {
@@ -179,7 +180,9 @@ export class AnnotoPlugin {
                 horizontal: 'inner',
                 vertical: 'center',
             },
-            ux: {},
+            ux: {
+                theme: this.ctx.getConfig('theme'),
+            },
             features: {
                 timeline: !disableTimeline,
                 comments: !disableComments,
