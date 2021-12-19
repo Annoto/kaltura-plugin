@@ -1,31 +1,17 @@
-/* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
-/* eslint func-names: ["error", "never"] */
-
-const Merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const CommonConfig = require('./webpack.common');
-const webpack = require('webpack');
 
 module.exports = function (env) {
     const commonEnv = env;
-    commonEnv.appURL = 'https://staging-app.annoto.net';
-    return Merge(CommonConfig(env), {
+    commonEnv.appURL = 'https://cdn.annoto.net/staging/widget/latest';
+    return merge(CommonConfig(env), {
         devtool: 'nosources-source-map',
-        plugins: [
-            new webpack.LoaderOptionsPlugin({
-                minimize: true,
-                debug: false,
-            }),
-            new webpack.optimize.UglifyJsPlugin({
-                beautify: false,
-                mangle: {
-                    screw_ie8: true,
-                    keep_fnames: true,
-                },
-                compress: {
-                    screw_ie8: true,
-                },
-                comments: false,
-            }),
-        ],
+        mode: 'production',
+        optimization: {
+            splitChunks: {
+                chunks: 'all',
+                minSize: 100000,
+            },
+        },
     });
 };

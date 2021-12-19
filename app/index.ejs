@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="<%- htmlWebpackPlugin.options.description %>">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%- htmlWebpackPlugin.options.title %></title>
+
+    <!-- Disable tap highlight on IE -->
+    <meta name="msapplication-tap-highlight" content="no">
+
+    <!-- Web Application Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="<%- htmlWebpackPlugin.options.title %>">
+    <link rel="icon" sizes="192x192" href="https://assets.annoto.net/images/touch/chrome-touch-icon-192x192.png">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="<%- htmlWebpackPlugin.options.title %>">
+    <link rel="apple-touch-icon" href="https://assets.annoto.net/images/touch/apple-touch-icon.png">
+
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage"
+        content="https://assets.annoto.net/images/touch/ms-touch-icon-144x144-precomposed.png">
+    <meta name="msapplication-TileColor" content="#ffffff">
+
+    <!-- Color the status bar on mobile devices -->
+    <meta name="theme-color" content="#EA5451">
+
+</head>
+
+<body>
+    <h3>Annoto Kaltura Plugin</h3>
+
+    <script
+        src="http://cdnapisec.kaltura.com/p/2302901/sp/230290100/embedIframeJs/uiconf_id/49259063/partner_id/2302901"></script>
+    <div id="kaltura_player_1631833648" style="width: 100%; height: 560px;"></div>
+    <script>
+        kWidget.embed({
+            "targetId": "kaltura_player_1631833648",
+            "wid": "_2302901",
+            "uiconf_id": 49259063,
+            "flashvars": {
+                "annoto": {
+                    'plugin': true,
+                    "iframeHTML5Js": "plugin.js",
+                    "sidePanelLayout": true,
+                    //"customerKey": "eyJhbGciOiJIUzI1NiJ9.ZjU4MTMyMzgtZTBiNS00NTM2LWE1ZTEtNTliMGZhMjYzZjVm.3vX2MeaEtjKS83Iqj9K_D-3-NWMXAJUoslpQEuTFVGk"
+                },
+            },
+            "entry_id": "1_mz5cwhfa",
+            "cache_st": 1631833649,
+        });
+
+        kWidget.addReadyCallback(function (playerId) {
+            var kdp = document.getElementById(playerId);
+
+            kdp.kBind('annotoPluginReady', function (api) {
+                console.log('Annoto is ready and the API can now be used');
+
+                kdp.kUnbind('annotoPluginReady');
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>

@@ -18,38 +18,17 @@ module.exports = function (env) {
         },
         module: {
             rules: [
-                {
+                /* {
                     test: /\.ts$/,
                     enforce: 'pre',
                     loader: 'tslint-loader',
                     options: {
                         emitErrors: true,
                     },
-                },
+                }, */
                 {
                     test: /\.ts$/,
-                    use: 'ts-loader',
-                    exclude: /(node_modules|bower_components)/,
-                },
-                {
-                    test: /\.js$/,
-                    enforce: 'pre',
-
-                    loader: 'eslint-loader',
-                    options: {
-                        emitWarning: true,
-                    },
-                },
-                {
-                    test: /\.js$/,
-                    exclude: /(node_modules|bower_components)/,
-                    use: {
-                        loader: 'babel-loader',
-                    },
-                },
-                {
-                    test: /\.hbs$/,
-                    loader: 'handlebars-loader',
+                    loader: 'ts-loader',
                 },
                 {
                     test: /\.scss$/,
@@ -61,10 +40,27 @@ module.exports = function (env) {
                             loader: 'css-loader',
                         },
                         {
+                            loader: 'postcss-loader',
+                            options: {
+                                postcssOptions: {
+                                    plugins: [
+                                        [
+                                            'autoprefixer',
+                                            {
+                                                // Options
+                                            },
+                                        ],
+                                    ]
+                                }
+                            }
+                        },
+                        {
                             loader: 'sass-loader',
                             options: {
-                                precision: 5,
-                                outputStyle: 'compressed',
+                                sassOptions: {
+                                    precision: 5,
+                                    outputStyle: 'compressed',
+                                }
                             },
                         },
                     ],
@@ -78,22 +74,24 @@ module.exports = function (env) {
             new webpack.DefinePlugin({
                 'process.env': {
                     version: JSON.stringify(VERSION),
-                    NODE_ENV: JSON.stringify(env.type),
+                    ENV: JSON.stringify(env.envName),
                 },
                 APP_URL: JSON.stringify(env.appURL),
             }),
             new HtmlWebpackPlugin({
-                template: 'app/index.hbs',
+                template: 'app/index.ejs',
                 title: 'Annoto Kaltura Plugin',
                 description: 'Annoto Kaltura Plugin',
             }),
-            new CopyWebpackPlugin([
-                { from: 'app/favicon.ico' },
-                { from: 'app/humans.txt' },
-                { from: 'app/robots.txt' },
-                { from: 'app/manifest.json' },
-                { from: 'app/manifest.webapp' },
-            ]),
+            new CopyWebpackPlugin({
+                patterns: [
+                    { from: 'app/favicon.ico' },
+                    { from: 'app/humans.txt' },
+                    { from: 'app/robots.txt' },
+                    { from: 'app/manifest.json' },
+                    { from: 'app/manifest.webapp' },
+                ]
+            }),
         ],
     };
 };

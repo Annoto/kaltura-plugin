@@ -1,4 +1,4 @@
-import { LaunchSourceConfig, ThemeType } from '@annoto/widget-api';
+import { ILaunchSourceConfig, ThemeType, WidgetPositionType } from '@annoto/widget-api';
 
 interface PluginConfiguration {
     // Standard Kaltura plugin config
@@ -12,9 +12,9 @@ interface PluginConfiguration {
 
     // Annoto Config
     customerKey?: string;
-    launchSource?: LaunchSourceConfig;
+    launchSource?: ILaunchSourceConfig;
     demoMode?: boolean;
-    position?: string;
+    position?: WidgetPositionType;
     locale?: string;
     sidePanelLayout?: boolean;
     sidePanelFullScreen?: boolean;
