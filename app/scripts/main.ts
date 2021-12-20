@@ -1,11 +1,11 @@
 import { init } from './plugin';
-import constantsJs from './constants.js';
+import constantsJs from './constants';
 
 declare const mw: {
     kalturaPluginWrapper: any,
 };
 
-const BOOTSRAP = `${constantsJs.APP_URL}/annoto-bootstrap.js`;
+const BOOTSRAP = `${constantsJs.APP_URL}/bootstrap.js`;
 
 if (mw && mw.kalturaPluginWrapper) {
     init({

@@ -1,5 +1,5 @@
-$widgetWidth: 360px;
-$widgetFsWidth: 370px;
+$widgetWidth: 350px;
+$widgetFsWidth: 400px;
 $playlistWidth: 320px;
 $minibarWidth: 64px;
 
@@ -7,6 +7,8 @@ $minibarWidth: 64px;
     position: relative;
     width: 100%;
     height: 100%;
+    --nnk-side-panel-width: 350px;
+    --nnk-fs-side-panel-width: 400px;
 }
 
 @media only screen and (min-width: 720px) {
@@ -16,9 +18,11 @@ $minibarWidth: 64px;
             .mwPlayerContainer {
                 float: left;
                 width: calc(100% - #{$widgetWidth});
+                width: calc(100% - var(--nnk-side-panel-width, #{$widgetWidth}));
                 transition: width ease-in-out .2s;
                 &.fullscreen {
                     width: calc(100% - #{$widgetFsWidth}) !important;
+                    width: calc(100% - var(--nnk-fs-side-panel-width, #{$widgetFsWidth})) !important;
                     position: relative !important;
                 }
             }
@@ -53,6 +57,7 @@ $minibarWidth: 64px;
                 &.nnk-always-on:not(.nnk-hidden) {
                     .mwPlayerContainer {
                         width: calc(100% - #{$widgetWidth}) !important;
+                        width: calc(100% - var(--nnk-side-panel-width, #{$widgetWidth})) !important;
                     }
                 }
                 &.nnk-hidden {

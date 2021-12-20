@@ -2,5 +2,5 @@
 /* eslint global-require: "off" */
 
 module.exports = function(env) {
-    return require(`./webpack.${env.type}`)(env);
+    return require(`./webpack.${env.envName}`)(env);
 };

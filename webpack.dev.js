@@ -1,21 +1,15 @@
-/* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
-/* eslint func-names: ["error", "never"] */
-
-const path = require('path');
-const Merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const CommonConfig = require('./webpack.common');
 
 module.exports = function (env) {
     const commonEnv = env;
     commonEnv.appURL = `${env.https ? 'https' : 'http'}://localhost:9000`;
-    return Merge(CommonConfig(commonEnv), {
-        devtool: 'cheap-module-inline-source-map',
+    return merge(CommonConfig(commonEnv), {
+        devtool: 'inline-cheap-module-source-map',
+        mode: 'development',
         devServer: {
-            contentBase: path.join(__dirname, 'dist'),
             port: 9001,
-            disableHostCheck: true,
+            allowedHosts: 'all',
         },
-        plugins: [
-        ],
     });
 };

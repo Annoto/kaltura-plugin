@@ -1,9 +1,8 @@
 import '../../styles/plugin.scss';
 import { PluginCtx, PluginConfiguration, Player, MediaEtry } from './mw';
 import { Logger } from './logger';
-import { AnnotoConfig, AnnotoApi, Annoto as AnnotoMain, AnnotoUxEvent } from '@annoto/widget-api';
+import { IConfig, IAnnotoApi, Annoto as AnnotoMain, IUxEvent, WidgetLayoutType } from '@annoto/widget-api';
 import { PlayerAdaptor } from './player-adaptor';
-// import { DeviceDetector } from './device-detector';
 
 declare const $: JQueryStatic;
 
@@ -17,10 +16,10 @@ export class AnnotoPlugin {
     private isWidgetBooted: boolean = false;
     private isConfigSetup: boolean = false;
     private isReadyToBoot: boolean = false;
-    private annotoApi: AnnotoApi;
-    private config: AnnotoConfig;
+    private annotoApi: IAnnotoApi;
+    private config: IConfig;
+    private widgetIndex: number;
     private adaptor: PlayerAdaptor;
-    // private deviceDetector: DeviceDetector;
     private openState: boolean = false;
     private disabledState: boolean = false;
     private isSidePanelLayout: boolean = false;
@@ -29,23 +28,22 @@ export class AnnotoPlugin {
         this.ctx = ctx;
     }
 
-    static defaultConfig: PluginConfiguration = {
+    static defaultConfig: Partial<PluginConfiguration> = {
         // parent: 'videoHolder',
         // order: 100,
         // displayImportance: 'low',
         // visible: true,
 
         // custom property and custom value
-        customerKey: '',
-        demoMode: false,
-        position: 'right',
-        locale: 'en',
-        sidePanelLayout: false,
-        sidePanelFullScreen: false,
-        sidePaneClosedOnLoad: false,
-        disableComments: false,
-        disableNotes: false,
-        theme: 'default',
+        // customerKey: '',
+        // demoMode: false,
+        // position: 'right',
+        // locale: 'en',
+        // sidePanelLayout: false,
+        // sidePanelFullScreen: false,
+        // disableComments: false,
+        // disableNotes: false,
+        // theme: 'default',
     };
 
     public isSafeEnviornment() : boolean {
@@ -63,7 +61,6 @@ export class AnnotoPlugin {
         this.ctx = ctx;
         this.player = this.ctx.getPlayer();
         this.adaptor = new PlayerAdaptor(ctx);
-        // this.deviceDetector = new DeviceDetector();
 
         this.setupConfigAndBootIfReady();
     }
@@ -99,27 +96,30 @@ export class AnnotoPlugin {
         this.ctx._super();
     }
 
-    private setupLayout(config: AnnotoConfig) {
-        const ux = config.ux;
-        const features = config.features || {};
-        const noWidget = features.comments === false && features.privateNotes === false;
-        const isLeft = config.position === 'left';
+    private setupLayout() {
+        const appEl = $('#annoto-app');
+        $('.mwPlayerContainer').unwrap('.nnk-side-panel');
+        const ux = this.config.widgets[this.widgetIndex]?.ux;
+        if (!ux) {
+            Logger.warn('widget ux for setupLyaout not found');
+            return;
+        }
+        const isLeft = ux.position === 'left';
         const isPlaylist = this.player.isPlaylistScreen() || $('.playlistInterface').length > 0;
-        const isSidePanelLayout = !noWidget &&
-            !!(ux.sidePanelLayout || this.ctx.getConfig('sidePanelLayout')) &&
+        const isSidePanelLayout = !!((['sidePanel', 'sidePanelOverlay'] as WidgetLayoutType[]).includes(ux.layout) || this.ctx.getConfig('sidePanelLayout')) &&
             (!isPlaylist || isPlaylist && screenWidth() > 1100);
-        const isFullScreenSidePanel = isSidePanelLayout && !!(ux.sidePanelFullScreen ||
+        const isFullScreenSidePanel = isSidePanelLayout && !!(ux.sidePanel.fullScreenEnable ||
             this.ctx.getConfig('sidePanelFullScreen'));
-        const sidePaneClosedOnLoad = ux.openOnLoad === false ||
-            this.ctx.getConfig('sidePaneClosedOnLoad');
 
-        if (isSidePanelLayout && $('.nnk-side-panel').length === 0) {
-            $('.mwPlayerContainer').wrap(`<div class="nnk-side-panel${
-                isFullScreenSidePanel ? ' nnk-always-on' : ''
-            }${
-                isLeft ? ' nnk-left' : ''
-            }"></div>`);
-            $('.nnk-side-panel').append('<div id="annoto-app"></div>');
+        if (isSidePanelLayout) {
+            $('.mwPlayerContainer').wrap(`<div class="nnk-side-panel"></div>`);
+            if (isFullScreenSidePanel) {
+                $('.nnk-side-panel').addClass('nnk-always-on');
+            }
+            if (isLeft) {
+                $('.nnk-side-panel').addClass('nnk-left');
+            }
+            $('.nnk-side-panel').append(appEl.get(0) || '<div id="annoto-app"></div>');
             try {
                 // try to expand the player should work for MediaSpace
                 this.player.getPluginInstance('expandToggleBtn').getBtn().click();
@@ -130,20 +130,26 @@ export class AnnotoPlugin {
             this.player.bindHelper('onCloseFullScreen', () => {
                 $('.nnk-side-panel').removeClass('nnk-fullscreen');
             });
-            ux.maxWidth = 360;
             if (isPlaylist) {
                 $('body').addClass('nnk-playlist-layout');
             }
-            if (sidePaneClosedOnLoad) {
-                ux.openOnLoad = false;
+            this.openState = ux.loadState === 'open';
+            if (!this.openState) {
                 $('.nnk-side-panel').addClass('nnk-hidden');
-            } else {
-                this.openState = true;
+            }
+            ux.layout = 'sidePanel';
+            this.isSidePanelLayout = true;
+            this.config.ux.theme = 'dark';
+            const spEl = $('.nnk-side-panel').get(0);
+            if (spEl) {
+                spEl.style.setProperty('--nnk-side-panel-width', `${ux.sidePanel.width}px`);
+                spEl.style.setProperty('--nnk-fs-side-panel-width', `${ux.sidePanel.fullScreenWidth}px`);
             }
         }
-        ux.sidePanelLayout = isSidePanelLayout;
-        ux.sidePanelFullScreen = isFullScreenSidePanel;
-        this.isSidePanelLayout = isSidePanelLayout;
+        if (isFullScreenSidePanel) {
+            ux.sidePanel.fullScreenEnable = true;
+        }
+        setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
     }
 
     private listenForEntryUpdates() {
@@ -160,34 +166,16 @@ export class AnnotoPlugin {
         });
     }
 
-    private setupConfigAndBootIfReady() {
+    private async setupConfigAndBootIfReady() {
         if (this.isConfigSetup) {
             return;
         }
 
-        const demoMode = this.ctx.getConfig('demoMode') || !this.customerKeyIsValid();
-        const locale = this.ctx.getConfig('locale');
-        const disableTimeline = this.player.isLive() && !this.player.isDVR();
-        const disableComments = this.ctx.getConfig('disableComments');
-        const disableNotes = this.ctx.getConfig('disableNotes');
+        const demoMode = this.ctx.getConfig('demoMode');
         this.config = {
             demoMode,
-            locale,
             clientId: this.ctx.getConfig('customerKey'),
-            position: this.ctx.getConfig('position'),
             launchSource: this.ctx.getConfig('launchSource'),
-            align: {
-                horizontal: 'inner',
-                vertical: 'center',
-            },
-            ux: {
-                theme: this.ctx.getConfig('theme'),
-            },
-            features: {
-                timeline: !disableTimeline,
-                comments: !disableComments,
-                privateNotes: !disableNotes,
-            },
             zIndex: 1000,
             fsZIndex: 10000,
             widgets: [
@@ -195,35 +183,93 @@ export class AnnotoPlugin {
                     player: {
                         type: 'custom',
                         element: $('.mwPlayerContainer').get(0),
-                        api: this.adaptor,
+                        adaptorApi: this.adaptor,
                     },
                     timeline: {
-                        overlayVideo: true,
+                        overlay: true,
                     },
+                    ux: { sidePanel: {} },
+                    features: {},
                 },
             ],
+            hooks: {
+                setup: this.setupWidgetConfig,
+            },
+            ux: {},
         };
+        this.widgetIndex = 0;
 
+        this.isConfigSetup = true;
+        await this.setupEventTriggerHandle({ isBootConfig: true });
+        this.isReadyToBoot = true;
+        this.bootWidgetIfReady();
+    }
+
+    private setupWidgetConfig = async (params: { widgetIndex: number; config: IConfig; mediaSrc: string; }): Promise<IConfig | undefined> => {
+        const { player, ctx } = this;
+        const locale = ctx.getConfig('locale');
+        const disableTimeline = player.isLive() && !player.isDVR();
+        const disableComments = ctx.getConfig('disableComments');
+        const disableNotes = ctx.getConfig('disableNotes');
+        const position = ctx.getConfig('position');
+        const theme = ctx.getConfig('theme');
+
+        this.widgetIndex = params.widgetIndex;
+        const config = this.config = params.config;
+        if (locale) {
+            config.locale = locale;
+        }
+        if (theme) {
+            config.ux.theme = theme;
+        }
+        const widget = config.widgets[params.widgetIndex];
+        if (widget) {
+            if (disableTimeline) {
+                widget.features.timeline = { enabled: false };
+            }
+            if (disableComments) {
+                widget.features.comments = { enabled: false };
+            }
+            if (disableNotes) {
+                widget.features.notes = { enabled: false };
+            }
+            if (position) {
+                widget.ux.position = position;
+            }
+            if (widget.ux.layout === 'edge' || widget.ux.layout === 'fixed') {
+                widget.ux.layout = 'overlay';
+            }   
+        } else {
+            Logger.warn('widget not found for setupWidgetConfig');
+        }
+
+        await this.setupEventTriggerHandle();
+        this.setupLayout();
+        return this.config;
+    }
+
+    private async setupEventTriggerHandle({ isBootConfig }: { isBootConfig?: boolean; } = {}) {
         const setupEventParams: {
-            config: AnnotoConfig,
+            config: IConfig,
             await?: (cb: () => void) => void,
+            isBootConfig: boolean;
         } = {
+            isBootConfig: !!isBootConfig,
             config: this.config,
         };
         this.player.triggerHelper('annotoPluginSetup', setupEventParams);
-        this.isConfigSetup = true;
 
-        const doBoot = () => {
-            this.setupLayout(this.config);
-            this.isReadyToBoot = true;
-            this.bootWidgetIfReady();
-        };
-
-        if (setupEventParams.await) {
-            setupEventParams.await(() => doBoot());
-        } else {
-            doBoot();
-        }
+        return new Promise<void>((resolve) => {
+            const done = () => {
+                this.config = setupEventParams.config || this.config;
+                resolve();
+            };
+            if (setupEventParams.await) {
+                setupEventParams.await(done);
+            } else {
+                done();
+            }
+        });
     }
 
     private bootWidget() {
@@ -233,12 +279,11 @@ export class AnnotoPlugin {
 
         Annoto.boot(this.config);
         this.isWidgetBooted = true;
-        Annoto.on('ready', (api: AnnotoApi) => {
+        Annoto.on('ready', (api: IAnnotoApi) => {
             this.annotoApi = api;
-            // this.annotoApi.registerDeviceDetector(this.deviceDetector);
             this.player.triggerHelper('annotoPluginReady', this.annotoApi);
         });
-        Annoto.on('ux', (uxEvent: AnnotoUxEvent) => {
+        Annoto.on('ux', (uxEvent: IUxEvent) => {
             if (uxEvent.name === 'widget:show') {
                 if (this.isSidePanelLayout) {
                     $('.nnk-side-panel').removeClass('nnk-hidden');
@@ -274,7 +319,7 @@ export class AnnotoPlugin {
 
     private closeWidget() : Promise<void> {
         if (this.annotoApi) {
-            return this.annotoApi.close();
+            return this.annotoApi.destroy();
         }
         return Promise.resolve();
     }
@@ -291,11 +336,6 @@ export class AnnotoPlugin {
             return this.annotoApi.show();
         }
         return Promise.resolve();
-    }
-
-    private customerKeyIsValid() {
-        const key = this.ctx.getConfig('customerKey');
-        return (typeof key === 'string') && (key !== '');
     }
 
     private annotoBootstrapIsLoaded() {

@@ -1,10 +1,9 @@
 import { Player, MediaEtry, PluginCtx } from './mw';
-import { nextTick } from '../util/next-tick';
 import {
-    PlayerAdaptorApi,
-    ControlsDescriptor,
+    IPlayerAdaptorApi,
+    IControlsDescriptor,
     PlayerEventCallback,
-    MediaDetails,
+    IMediaDetails,
 } from '@annoto/widget-api';
 
 declare const mw: {
@@ -17,7 +16,7 @@ declare const mw: {
     isMobileDevice: () => boolean,
 };
 
-export class PlayerAdaptor implements PlayerAdaptorApi {
+export class PlayerAdaptor implements IPlayerAdaptorApi {
     private player: Player;
     private ctx: PluginCtx;
 
@@ -93,7 +92,7 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         return `/partnerId/${partnerId}/entryId/${id}`;
     }
 
-    public mediaMetadata(): MediaDetails {
+    public mediaMetadata(): IMediaDetails {
         const entry: MediaEtry = this.mediaEntry();
         if (!entry) {
             return;
@@ -116,7 +115,7 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
         return (typeof this.player.autoplay === 'boolean') ? this.player.autoplay : this.isAutoplay;
     }
 
-    public controlsDescriptor() : ControlsDescriptor {
+    public controlsDescriptor() : IControlsDescriptor {
         return null;
     }
 
@@ -170,7 +169,7 @@ export class PlayerAdaptor implements PlayerAdaptorApi {
     }
 
     public onReady(cb: PlayerEventCallback) {
-        nextTick(cb)();
+        setTimeout(cb);
     }
 
     public onPlay(cb: PlayerEventCallback) {
