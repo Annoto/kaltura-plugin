@@ -35,6 +35,8 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         this.player = ctx.getPlayer();
     }
 
+    readonly sidePanelSupported: true;
+
     public init(element: Element) {
         this.mediaId = this.entryId();
         return true;
