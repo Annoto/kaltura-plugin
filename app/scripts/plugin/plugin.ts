@@ -97,8 +97,15 @@ export class AnnotoPlugin {
     }
 
     private setupLayout() {
-        const appEl = $('#annoto-app');
-        $('.mwPlayerContainer').unwrap('.nnk-side-panel');
+        if ($('.nnk-side-panel').get(0)) {
+            $('.mwPlayerContainer').unwrap('.nnk-side-panel');
+        }
+        $('body').removeClass('nnk-playlist-layout');
+        if (this.annotoApi.getWidgetState() === 'hidden') {
+            setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
+            return;
+        }
+        const appEl = $('#annoto-app,#annoto-app-default').has('#annoto-app-root');
         const ux = this.config.widgets[this.widgetIndex]?.ux;
         if (!ux) {
             Logger.warn('widget ux for setupLyaout not found');
@@ -106,7 +113,7 @@ export class AnnotoPlugin {
         }
         const isLeft = ux.position === 'left';
         const isPlaylist = this.player.isPlaylistScreen() || $('.playlistInterface').length > 0;
-        const isSidePanelLayout = !!((['sidePanel', 'sidePanelOverlay'] as WidgetLayoutType[]).includes(ux.layout) || this.ctx.getConfig('sidePanelLayout')) &&
+        const isSidePanelLayout = !!(ux.layout === 'sidePanel' || this.ctx.getConfig('sidePanelLayout')) &&
             (!isPlaylist || isPlaylist && screenWidth() > 1100);
         const isFullScreenSidePanel = isSidePanelLayout && !!(ux.sidePanel.fullScreenEnable ||
             this.ctx.getConfig('sidePanelFullScreen'));
