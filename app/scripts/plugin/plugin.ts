@@ -146,7 +146,6 @@ export class AnnotoPlugin {
             }
             ux.layout = 'sidePanel';
             this.isSidePanelLayout = true;
-            this.config.ux.theme = 'dark';
             const spEl = $('.nnk-side-panel').get(0);
             if (spEl) {
                 spEl.style.setProperty('--nnk-side-panel-width', `${ux.sidePanel.width}px`);
