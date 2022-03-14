@@ -21,6 +21,11 @@ interface PluginConfiguration {
     disableComments?: boolean;
     disableNotes?: boolean;
     theme?: ThemeType;
+    /**
+     * Backend domain to use for example: 'us.annnoto.net'
+     * @default 'eu.annoto.net'
+     */
+    domain?: string;
 }
 
 interface AnnotoPluginCtx {

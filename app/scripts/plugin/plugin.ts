@@ -202,6 +202,9 @@ export class AnnotoPlugin {
                 setup: this.setupWidgetConfig,
             },
             ux: {},
+            backend: {
+                domain: this.ctx.getConfig('domain'),
+            },
         };
         this.widgetIndex = 0;
 
