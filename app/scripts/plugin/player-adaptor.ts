@@ -127,13 +127,18 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     }
 
     public width() : number | string {
-        // return this.getProperty('{video.player.width}');
-        return this.player.getWidth();
+        const { player } = this;
+        
+        return player.getPlayerWidth();
     }
 
     public height() : number | string {
-        // return this.getProperty('{video.player.height}');
-        return this.player.getHeight();
+        const { player } = this;
+        const isPlaylist = $('.playlistInterface').length > 0;
+        if (isPlaylist) {
+            return $('.playlistInterface').height() || player.getHeight();
+        }
+        return player.getHeight();
     }
 
     public controlsHidden() : boolean {
@@ -159,7 +164,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     }
 
     public embeddableElement() {
-        return $('.nnk-side-panel').get(0) || $('.mwPlayerContainer').get(0);
+        return $('.mwPlayerContainer').get(0);
     }
 
     public trackMarginLeft() : number | string {

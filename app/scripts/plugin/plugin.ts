@@ -1,7 +1,12 @@
+import {
+    IConfig,
+    IAnnotoApi,
+    Annoto as AnnotoMain,
+    IUxEvent,
+} from '@annoto/widget-api';
 import '../../styles/plugin.scss';
 import { PluginCtx, PluginConfiguration, Player, MediaEtry } from './mw';
 import { Logger } from './logger';
-import { IConfig, IAnnotoApi, Annoto as AnnotoMain, IUxEvent, WidgetLayoutType } from '@annoto/widget-api';
 import { PlayerAdaptor } from './player-adaptor';
 
 declare const $: JQueryStatic;
@@ -22,7 +27,6 @@ export class AnnotoPlugin {
     private adaptor: PlayerAdaptor;
     private openState: boolean = false;
     private disabledState: boolean = false;
-    private isSidePanelLayout: boolean = false;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
@@ -97,60 +101,24 @@ export class AnnotoPlugin {
     }
 
     private setupLayout() {
-        if ($('.nnk-side-panel').get(0)) {
-            $('.mwPlayerContainer').unwrap('.nnk-side-panel');
-        }
-        $('body').removeClass('nnk-playlist-layout');
         if (this.annotoApi.getWidgetState() === 'hidden') {
             setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
             return;
         }
-        const appEl = $('#annoto-app,#annoto-app-default').has('#annoto-app-root');
         const ux = this.config.widgets[this.widgetIndex]?.ux;
         if (!ux) {
             Logger.warn('widget ux for setupLyaout not found');
             return;
         }
-        const isLeft = ux.position === 'left';
-        const isPlaylist = this.player.isPlaylistScreen() || $('.playlistInterface').length > 0;
-        const isSidePanelLayout = !!(ux.layout === 'sidePanel' || this.ctx.getConfig('sidePanelLayout')) &&
-            (!isPlaylist || isPlaylist && screenWidth() > 1100);
-        const isFullScreenSidePanel = isSidePanelLayout && !!(ux.sidePanel.fullScreenEnable ||
-            this.ctx.getConfig('sidePanelFullScreen'));
+        const isSidePanelLayout = !!(ux.layout === 'sidePanel' || this.ctx.getConfig('sidePanelLayout'));
+        const isFullScreenSidePanel = !!(ux.sidePanel.fullScreenEnable || this.ctx.getConfig('sidePanelFullScreen'));
 
         if (isSidePanelLayout) {
-            $('.mwPlayerContainer').wrap(`<div class="nnk-side-panel"></div>`);
-            if (isFullScreenSidePanel) {
-                $('.nnk-side-panel').addClass('nnk-always-on');
-            }
-            if (isLeft) {
-                $('.nnk-side-panel').addClass('nnk-left');
-            }
-            $('.nnk-side-panel').append(appEl.get(0) || '<div id="annoto-app"></div>');
             try {
                 // try to expand the player should work for MediaSpace
                 this.player.getPluginInstance('expandToggleBtn').getBtn().click();
             } catch (err) {}
-            this.player.bindHelper('onOpenFullScreen', () => {
-                $('.nnk-side-panel').addClass('nnk-fullscreen');
-            });
-            this.player.bindHelper('onCloseFullScreen', () => {
-                $('.nnk-side-panel').removeClass('nnk-fullscreen');
-            });
-            if (isPlaylist) {
-                $('body').addClass('nnk-playlist-layout');
-            }
-            this.openState = ux.loadState === 'open';
-            if (!this.openState) {
-                $('.nnk-side-panel').addClass('nnk-hidden');
-            }
             ux.layout = 'sidePanel';
-            this.isSidePanelLayout = true;
-            const spEl = $('.nnk-side-panel').get(0);
-            if (spEl) {
-                spEl.style.setProperty('--nnk-side-panel-width', `${ux.sidePanel.width}px`);
-                spEl.style.setProperty('--nnk-fs-side-panel-width', `${ux.sidePanel.fullScreenWidth}px`);
-            }
         }
         if (isFullScreenSidePanel) {
             ux.sidePanel.fullScreenEnable = true;
@@ -188,7 +156,7 @@ export class AnnotoPlugin {
                 {
                     player: {
                         type: 'custom',
-                        element: $('.mwPlayerContainer').get(0),
+                        element: $('.playlistInterface').get(0) || $('.mwPlayerContainer').get(0),
                         adaptorApi: this.adaptor,
                     },
                     timeline: {
@@ -294,25 +262,12 @@ export class AnnotoPlugin {
         });
         Annoto.on('ux', (uxEvent: IUxEvent) => {
             if (uxEvent.name === 'widget:show') {
-                if (this.isSidePanelLayout) {
-                    $('.nnk-side-panel').removeClass('nnk-hidden');
-                    setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
-                }
                 if (!this.disabledState) {
                     this.openState = true;
                 }
             } else if (uxEvent.name === 'widget:hide') {
-                if (this.isSidePanelLayout) {
-                    $('.nnk-side-panel').addClass('nnk-hidden');
-                    setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
-                }
                 if (!this.disabledState) {
                     this.openState = false;
-                }
-            } else if (uxEvent.name === 'widget:minimise') {
-                if (this.isSidePanelLayout) {
-                    $('.nnk-side-panel').addClass('nnk-hidden');
-                    setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
                 }
             }
         });
@@ -352,9 +307,3 @@ export class AnnotoPlugin {
             && (typeof Annoto.boot === 'function');
     }
 }
-
-const screenWidth = () => {
-    return window.innerWidth
-    || document.documentElement.clientWidth
-    || document.body.clientWidth;
-};

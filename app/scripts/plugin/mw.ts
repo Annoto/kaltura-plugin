@@ -64,6 +64,8 @@ interface Player extends Element {
 
     getWidth: () => number;
     getHeight: () => number;
+    getPlayerWidth: () => number;
+    getPlayerHeight: () => number;
     getPlayerElement: () => Element;
     getInterface: () => JQuery;
     getVideoHolder: () => JQuery;
