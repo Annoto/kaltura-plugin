@@ -1,80 +1,37 @@
-$widgetWidth: 350px;
-$widgetFsWidth: 400px;
-$playlistWidth: 320px;
-$minibarWidth: 64px;
 
-.nnk-side-panel {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    --nnk-side-panel-width: 350px;
-    --nnk-fs-side-panel-width: 400px;
-}
+.annoto-player-element.nn-side-panel {
+    .videoHolder,
+    .topBarContainer,
+    .controlBarContainer,
+    #loadingSpinner_kplayer {
+        transition: width ease-in-out 0.2s;
+        width: calc(100% - var(--nn-side-panel-width)) !important;
+        left: 0;
+    }
 
-@media only screen and (min-width: 590px) {
-    .nnk-side-panel {
-        &:not(.nnk-fullscreen):not(.nnk-hidden),
-        &.nnk-always-on:not(.nnk-hidden) {
-            .mwPlayerContainer {
-                float: left;
-                width: calc(100% - #{$widgetWidth});
-                width: calc(100% - var(--nnk-side-panel-width, #{$widgetWidth}));
-                transition: width ease-in-out .2s;
-                &.fullscreen {
-                    width: calc(100% - #{$widgetFsWidth}) !important;
-                    width: calc(100% - var(--nnk-fs-side-panel-width, #{$widgetFsWidth})) !important;
-                    position: relative !important;
-                }
-            }
-            &.nnk-left {
-                .mwPlayerContainer {
-                    float: right;
-                }
-            }
-        }
-
-        &:not(.nnk-hidden):not(.nnk-minimised) {
-            > #annoto-app { // apply only when not in full screen
-                .annoto-overlay {
-                    .annoto-widget-container > div.nn-color-background,
-                    .annoto-resizable {
-                            border-radius: 0;
-                    }
-                }
-            }
+    &:not(.nn-side-panel-left) {
+        .controlBar,
+        .playlistAPI {
+            transition: right ease-in-out 0.2s;
+            right: var(--nn-side-panel-width) !important;
         }
     }
-}
 
-@media only screen and (min-width: 1100px) {
-    .nnk-playlist-layout {
-        .playlistInterface {
-            .nnk-side-panel:not(.nnk-fullscreen) {
-                position: relative;
-                width: calc(100% - #{$playlistWidth}) !important;
-                float: left;
-                &:not(.nnk-fullscreen):not(.nnk-hidden),
-                &.nnk-always-on:not(.nnk-hidden) {
-                    .mwPlayerContainer {
-                        width: calc(100% - #{$widgetWidth}) !important;
-                        width: calc(100% - var(--nnk-side-panel-width, #{$widgetWidth})) !important;
-                    }
-                }
-                &.nnk-hidden {
-                    .mwPlayerContainer {
-                        width: calc(100% - #{$minibarWidth}) !important;
-                    }
-                }
-            }
-            .nnk-side-panel.nnk-left {
-                .mwPlayerContainer {
-                    float: right !important;
-                }
-            }
-
-            .playlistAPI.k-vertical {
-                width: $playlistWidth !important;
-            }
+    &.nn-side-panel-left {
+        .videoHolder,
+        .topBarContainer,
+        .controlBarContainer,
+        #loadingSpinner_kplayer {
+            left: auto !important;
+            right: 0 !important;
+            float: right !important;
+        }
+        .sideBarContainerReminder.left,
+        .sideBarContainer.left.openBtn {
+            left: var(--nn-side-panel-width) !important;
+        }
+        .sideBarContainerReminder.left.shifted {
+            left: calc(30% + var(--nn-side-panel-width)) !important;
         }
     }
 }
