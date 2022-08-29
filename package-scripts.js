@@ -49,6 +49,9 @@ module.exports = {
             default: {
                 script: 'webpack serve --env envName=dev'
             },
+            proxy: {
+                script: 'webpack serve --env envName=dev_proxy'
+            },
             https: {
                 script: 'webpack serve --env envName=dev --env https=1 --https'
             },
