@@ -4,6 +4,7 @@ import {
     IControlsDescriptor,
     PlayerEventCallback,
     IMediaDetails,
+    CaptureSeekCallback,
 } from '@annoto/widget-api';
 
 declare const mw: {
@@ -28,6 +29,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         fn: PlayerEventCallback;
     }[] = [];
     protected onMediaChangeCb: PlayerEventCallback;
+    private captureSeekDispose: () => void = () => {};
     protected updatedEntry: MediaEtry;
 
     constructor(ctx: PluginCtx) {
@@ -46,6 +48,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         this.events.forEach(ev => this.ctx.unbind(ev.event));
         this.events = [];
         this.onMediaChangeCb = undefined;
+        this.captureSeekDispose();
     }
 
     public play() {
@@ -128,7 +131,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
 
     public width() : number | string {
         const { player } = this;
-        
+
         return player.getPlayerWidth();
     }
 
@@ -211,6 +214,23 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
 
     public onSizeChange(cb: PlayerEventCallback) {
         this.on('resizeEvent', cb);
+    }
+
+    public onCaptureSeek(cb: CaptureSeekCallback) {
+        const controlBarContainer = this.player.getControlBarContainer()[0];
+        const mouseDownHandler = (e: Event) => {
+            const { clientX } = e as MouseEvent;
+            const sliderRangeEl = controlBarContainer?.querySelector('.ui-slider-range');
+            const progressRect = sliderRangeEl?.getBoundingClientRect() || {} as DOMRect;
+            const isRewind = clientX >= progressRect.x && clientX <= (progressRect.x + progressRect.width);
+            cb({ event: e, isRewind });
+        };
+        controlBarContainer.addEventListener('mousedown', mouseDownHandler , { capture: true });
+
+        this.captureSeekDispose = () => {
+            controlBarContainer?.removeEventListener('mousedown', mouseDownHandler);
+        };
+        // TODO: Add keydown handle if it possible
     }
 
     // Implement dummy controls state API
