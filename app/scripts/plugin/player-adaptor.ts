@@ -224,11 +224,11 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
             const progressRect = sliderRangeEl?.getBoundingClientRect() || {} as DOMRect;
             const isRewind = clientX >= progressRect.x && clientX <= (progressRect.x + progressRect.width);
 
-            const resetFocusStyles = () => {
+            const captureSeekCancelCb = () => {
                 (sliderRangeEl.parentNode as HTMLElement).style.outline = 'inherit';
             };
 
-            cb({ event: e, isRewind, resetFocusStyles });
+            cb({ event: e, isRewind, captureSeekCancelCb });
         };
         controlBarContainer.addEventListener('mousedown', mouseDownHandler , { capture: true });
 
