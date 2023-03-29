@@ -29,9 +29,11 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     }[] = [];
     protected onMediaChangeCb: PlayerEventCallback;
     protected updatedEntry: MediaEtry;
+    private onTimeUpdateCb: () => unknown;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
+        this.onTimeUpdateCb = undefined;
         this.player = ctx.getPlayer();
     }
 
@@ -45,6 +47,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     public remove() {
         this.events.forEach(ev => this.ctx.unbind(ev.event));
         this.events = [];
+        this.onTimeUpdateCb = undefined;
         this.onMediaChangeCb = undefined;
     }
 
@@ -188,10 +191,16 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     }
 
     public onSeek(cb: PlayerEventCallback) {
-        this.on('seeked', () => this.callIfNotAd(cb));
+        this.on('seeked', () => {
+            if (this.onTimeUpdateCb) {
+                this.onTimeUpdateCb();
+            }
+            this.callIfNotAd(cb)
+        });
     }
 
     public onTimeUpdate(cb: PlayerEventCallback) {
+        this.onTimeUpdateCb = cb;
         this.on('timeupdate', () => this.callIfNotAd(cb));
     }
 
@@ -223,14 +232,6 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
 
     public onError(cb: (err?: Error) => void) {
         this.on('playerError', cb);
-    }
-
-    public onVideoEnd(cb: PlayerEventCallback) {
-        this.on('seeked', () => {
-            if (this.getTimeProperty('{duration}') - this.getTimeProperty('{video.player.currentTime}') < 1) {
-                this.callIfNotAd(cb);
-            }
-        })
     }
 
     public updateMediaEntry(entry?: MediaEtry | null) {
