@@ -225,6 +225,14 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         this.on('playerError', cb);
     }
 
+    public onVideoEnd(cb: PlayerEventCallback) {
+        this.on('seeked', () => {
+            if (this.getTimeProperty('{duration}') - this.getTimeProperty('{video.player.currentTime}') < 1) {
+                this.callIfNotAd(cb);
+            }
+        })
+    }
+
     public updateMediaEntry(entry?: MediaEtry | null) {
         if (entry || entry === null) {
             this.updatedEntry = entry;
