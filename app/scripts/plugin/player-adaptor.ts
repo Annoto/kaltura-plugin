@@ -193,7 +193,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     public onSeek(cb: PlayerEventCallback) {
         this.on('seeked', () => {
             if (this.onTimeUpdateCb) {
-                this.onTimeUpdateCb();
+                this.callIfNotAd(this.onTimeUpdateCb);
             }
             this.callIfNotAd(cb)
         });
