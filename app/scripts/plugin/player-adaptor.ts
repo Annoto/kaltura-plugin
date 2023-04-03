@@ -5,6 +5,7 @@ import {
     PlayerEventCallback,
     IMediaDetails,
 } from '@annoto/widget-api';
+import {reportTranspileErrors} from "ts-loader/dist/instances";
 
 declare const mw: {
     getMwEmbedPath: () => string;
@@ -46,6 +47,14 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         this.events.forEach(ev => this.ctx.unbind(ev.event));
         this.events = [];
         this.onMediaChangeCb = undefined;
+    }
+
+    public isInIframe(): boolean {
+        let inIframe = true;
+        try {
+            inIframe = self !== window.parent
+        } catch (e) {}
+        return inIframe;
     }
 
     public play() {

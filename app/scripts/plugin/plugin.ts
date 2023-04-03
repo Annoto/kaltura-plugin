@@ -253,6 +253,7 @@ export class AnnotoPlugin {
         if (this.isWidgetBooted) {
             return;
         }
+        this.handleIframeOverflow();
 
         Annoto.boot(this.config);
         this.isWidgetBooted = true;
@@ -272,6 +273,18 @@ export class AnnotoPlugin {
             }
         });
         this.listenForEntryUpdates();
+    }
+
+    /**
+     * Current kaltura version have bug with overflow,
+     * which leads to bugs on customers side
+     * @private
+     */
+    private handleIframeOverflow(): void {
+        if (this.adaptor.isInIframe()) {
+            const htmlFrameElement = $('html').get(0)
+            htmlFrameElement.style.overflow = 'hidden';
+        }
     }
 
     private loadWidget() {
