@@ -4,7 +4,7 @@ import {
     IControlsDescriptor,
     PlayerEventCallback,
     IMediaDetails,
-    CaptureSeekCallback,
+    CaptureUIEventCallback,
 } from '@annoto/widget-api';
 
 declare const mw: {
@@ -29,8 +29,9 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         fn: PlayerEventCallback;
     }[] = [];
     protected onMediaChangeCb: PlayerEventCallback;
-    private captureSeekDispose: () => void = () => {};
+    private captureUIDispose: (() => void) | undefined;
     protected updatedEntry: MediaEtry;
+    private element: Element;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
@@ -40,6 +41,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     readonly sidePanelSupported: true;
 
     public init(element: Element) {
+        this.element = element;
         this.mediaId = this.entryId();
         return true;
     }
@@ -48,7 +50,9 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         this.events.forEach(ev => this.ctx.unbind(ev.event));
         this.events = [];
         this.onMediaChangeCb = undefined;
-        this.captureSeekDispose();
+        if (this.captureUIDispose) {
+            this.captureUIDispose();
+        }
     }
 
     public play() {
@@ -216,27 +220,32 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         this.on('resizeEvent', cb);
     }
 
-    public onCaptureSeek(cb: CaptureSeekCallback) {
+    onCaptureUIEvent(cb: CaptureUIEventCallback) {
+        if (this.captureUIDispose) {
+            this.captureUIDispose();
+        }
         const controlBarContainer = this.player.getControlBarContainer()[0];
-        const mouseDownHandler = (e: Event) => {
-            const { clientX } = e as MouseEvent;
-            const sliderRangeEl = controlBarContainer?.querySelector('.ui-slider-range');
-            const progressRect = sliderRangeEl?.getBoundingClientRect() || {} as DOMRect;
-            const isRewind = clientX >= progressRect.x && clientX <= (progressRect.x + progressRect.width);
+        const sliderRangeEl = controlBarContainer?.querySelector('.ui-slider') as HTMLElement;
 
-            const captureSeekCancelCb = () => {
+        const mouseDownHandler = (ev: MouseEvent) => {
+            const { clientX } = ev ;
+            const rect = sliderRangeEl.getBoundingClientRect();
+            const timestamp = (clientX - rect.x) / rect.width * this.duration();
+            const eventCanceledCb = () => {
                 (sliderRangeEl.parentNode as HTMLElement).style.outline = 'inherit';
             };
-
-            cb({ event: e, isRewind, captureSeekCancelCb });
+             cb({ ev, timestamp, eventCanceledCb });
         };
+
         controlBarContainer.addEventListener('mousedown', mouseDownHandler , { capture: true });
 
-        this.captureSeekDispose = () => {
+        this.captureUIDispose = () => {
             controlBarContainer?.removeEventListener('mousedown', mouseDownHandler);
         };
+
         // TODO: Add keydown handle if it possible
     }
+
 
     // Implement dummy controls state API
     public onControlsShow(cb: PlayerEventCallback) {
