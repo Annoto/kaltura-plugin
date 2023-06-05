@@ -31,7 +31,6 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     protected onMediaChangeCb: PlayerEventCallback;
     private captureUIDispose: (() => void) | undefined;
     protected updatedEntry: MediaEtry;
-    private element: Element;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
@@ -41,7 +40,6 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     readonly sidePanelSupported: true;
 
     public init(element: Element) {
-        this.element = element;
         this.mediaId = this.entryId();
         return true;
     }
