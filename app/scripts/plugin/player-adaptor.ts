@@ -192,6 +192,8 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
 
     public onSeek(cb: PlayerEventCallback) {
         this.on('seeked', () => {
+            /* When user seeks into the end of the video from paused state,
+               the player will fire 'seeked' event, but not 'timeupdate'*/
             if (this.onTimeUpdateCb) {
                 this.callIfNotAd(this.onTimeUpdateCb);
             }
