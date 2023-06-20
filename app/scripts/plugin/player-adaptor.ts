@@ -29,7 +29,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         fn: PlayerEventCallback;
     }[] = [];
     protected onMediaChangeCb: PlayerEventCallback;
-    private captureUIDispose: (() => void) | undefined;
+    private captureUIDispose?: () => void;
     protected updatedEntry: MediaEtry;
 
     constructor(ctx: PluginCtx) {
@@ -233,21 +233,15 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
             const { clientX } = ev ;
             const rect = sliderRangeEl.getBoundingClientRect();
             const timestamp = (clientX - rect.x) / rect.width * this.duration();
-            const eventCanceledCb = () => {
-                (sliderRangeEl.parentNode as HTMLElement).style.outline = 'inherit';
-            };
-             cb({ ev, timestamp, eventCanceledCb });
+             cb({ ev, timestamp });
         };
 
-        controlBarContainer.addEventListener('mousedown', mouseDownHandler , { capture: true });
+        sliderRangeEl?.addEventListener('mousedown', mouseDownHandler , { capture: true });
 
         this.captureUIDispose = () => {
-            controlBarContainer?.removeEventListener('mousedown', mouseDownHandler);
+            sliderRangeEl?.removeEventListener('mousedown', mouseDownHandler, { capture: true });
         };
-
-        // TODO: Add keydown handle if it possible
     }
-
 
     // Implement dummy controls state API
     public onControlsShow(cb: PlayerEventCallback) {
