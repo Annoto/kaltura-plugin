@@ -4,6 +4,7 @@ import {
     IControlsDescriptor,
     PlayerEventCallback,
     IMediaDetails,
+    CaptureUIEventCallback,
 } from '@annoto/widget-api';
 
 declare const mw: {
@@ -28,6 +29,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         fn: PlayerEventCallback;
     }[] = [];
     protected onMediaChangeCb: PlayerEventCallback;
+    private captureUIDispose?: () => void;
     protected updatedEntry: MediaEtry;
     private onTimeUpdateCb: () => unknown;
 
@@ -49,6 +51,9 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         this.events = [];
         this.onTimeUpdateCb = undefined;
         this.onMediaChangeCb = undefined;
+        if (this.captureUIDispose) {
+            this.captureUIDispose();
+        }
     }
 
     public play() {
@@ -131,7 +136,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
 
     public width() : number | string {
         const { player } = this;
-        
+
         return player.getPlayerWidth();
     }
 
@@ -211,6 +216,10 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         this.on('onChangeMediaDone', () => this.mediaChangeHandle());
     }
 
+    public onEnded(cb: PlayerEventCallback) {
+        this.on('ended', () => this.callIfNotAd(cb));
+    }
+
     public onFullScreen(cb: (isFullScreen?: boolean) => void) {
         this.on('onOpenFullScreen', () => {
             cb(this.player.layoutBuilder.isInFullScreen());
@@ -222,6 +231,27 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
 
     public onSizeChange(cb: PlayerEventCallback) {
         this.on('resizeEvent', cb);
+    }
+
+    onCaptureUIEvent(cb: CaptureUIEventCallback) {
+        if (this.captureUIDispose) {
+            this.captureUIDispose();
+        }
+        const controlBarContainer = this.player.getControlBarContainer()[0];
+        const sliderRangeEl = controlBarContainer?.querySelector('.ui-slider') as HTMLElement;
+
+        const mouseDownHandler = (ev: MouseEvent) => {
+            const { clientX } = ev ;
+            const rect = sliderRangeEl.getBoundingClientRect();
+            const timestamp = (clientX - rect.x) / rect.width * this.duration();
+             cb({ ev, timestamp });
+        };
+
+        sliderRangeEl?.addEventListener('mousedown', mouseDownHandler , { capture: true });
+
+        this.captureUIDispose = () => {
+            sliderRangeEl?.removeEventListener('mousedown', mouseDownHandler, { capture: true });
+        };
     }
 
     // Implement dummy controls state API
