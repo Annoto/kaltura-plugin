@@ -23,7 +23,6 @@ module.exports = {
         'help-style': 'basic',
     },
     scripts: {
-        default: 'nps webpack',
         build: {
             default: 'nps build.prod',
             prod: {
