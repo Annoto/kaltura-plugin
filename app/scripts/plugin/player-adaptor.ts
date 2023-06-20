@@ -205,6 +205,10 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         this.on('onChangeMediaDone', () => this.mediaChangeHandle());
     }
 
+    public onEnded(cb: PlayerEventCallback) {
+        this.on('ended', () => this.callIfNotAd(cb));
+    }
+
     public onFullScreen(cb: (isFullScreen?: boolean) => void) {
         this.on('onOpenFullScreen', () => {
             cb(this.player.layoutBuilder.isInFullScreen());
