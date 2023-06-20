@@ -31,11 +31,10 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     protected onMediaChangeCb: PlayerEventCallback;
     private captureUIDispose?: () => void;
     protected updatedEntry: MediaEtry;
-    private onTimeUpdateCb: () => unknown;
+    private onTimeUpdateCb?: PlayerEventCallback;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
-        this.onTimeUpdateCb = undefined;
         this.player = ctx.getPlayer();
     }
 
@@ -197,18 +196,15 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
 
     public onSeek(cb: PlayerEventCallback) {
         this.on('seeked', () => {
-            /* When user seeks into the end of the video from paused state,
-               the player will fire 'seeked' event, but not 'timeupdate'*/
-            if (this.onTimeUpdateCb) {
-                this.callIfNotAd(this.onTimeUpdateCb);
-            }
+            // When user seeks into the end of the video from paused state, the player will fire 'seeked' event, but not 'timeupdate'
+            setTimeout(() => this.timeUpdateHandle());
             this.callIfNotAd(cb)
         });
     }
 
     public onTimeUpdate(cb: PlayerEventCallback) {
         this.onTimeUpdateCb = cb;
-        this.on('timeupdate', () => this.callIfNotAd(cb));
+        this.on('timeupdate', () => this.timeUpdateHandle());
     }
 
     public onMediaChange(cb: PlayerEventCallback) {
@@ -271,6 +267,12 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
             this.updatedEntry = entry;
         }
         this.mediaChangeHandle();
+    }
+
+    private timeUpdateHandle(): void {
+        if (this.onTimeUpdateCb) {
+            this.callIfNotAd(this.onTimeUpdateCb);
+        }
     }
 
     protected mediaChangeHandle() {
