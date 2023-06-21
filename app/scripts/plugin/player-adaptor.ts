@@ -31,6 +31,8 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     protected onMediaChangeCb: PlayerEventCallback;
     private captureUIDispose?: () => void;
     protected updatedEntry: MediaEtry;
+    private onTimeUpdateCb?: PlayerEventCallback;
+    private timeUpdateOnSeekCalled = false;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
@@ -47,7 +49,9 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     public remove() {
         this.events.forEach(ev => this.ctx.unbind(ev.event));
         this.events = [];
+        this.onTimeUpdateCb = undefined;
         this.onMediaChangeCb = undefined;
+        this.timeUpdateOnSeekCalled = false;
         if (this.captureUIDispose) {
             this.captureUIDispose();
         }
@@ -193,11 +197,21 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
     }
 
     public onSeek(cb: PlayerEventCallback) {
-        this.on('seeked', () => this.callIfNotAd(cb));
+        this.on('seeked', () => {
+            // When user seeks into the end of the video from paused state, the player will fire 'seeked' event, but not 'timeupdate'
+            this.timeUpdateOnSeekCalled = false;
+            setTimeout(() => {
+                if (!this.timeUpdateOnSeekCalled) {
+                    this.timeUpdateHandle()
+                }
+            });
+            this.callIfNotAd(cb)
+        });
     }
 
     public onTimeUpdate(cb: PlayerEventCallback) {
-        this.on('timeupdate', () => this.callIfNotAd(cb));
+        this.onTimeUpdateCb = cb;
+        this.on('timeupdate', () => this.timeUpdateHandle());
     }
 
     public onMediaChange(cb: PlayerEventCallback) {
@@ -260,6 +274,13 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
             this.updatedEntry = entry;
         }
         this.mediaChangeHandle();
+    }
+
+    private timeUpdateHandle(): void {
+        this.timeUpdateOnSeekCalled = true;
+        if (this.onTimeUpdateCb) {
+            this.callIfNotAd(this.onTimeUpdateCb);
+        }
     }
 
     protected mediaChangeHandle() {
