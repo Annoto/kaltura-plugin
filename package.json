@@ -36,7 +36,7 @@
     "node": ">=16.0"
   },
   "main": "dist/plugin.js",
-  "private": false,
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Annoto/kaltura-plugin.git"
