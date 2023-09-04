@@ -44,4 +44,26 @@ export function init(params: PluginInitParams) {
         Logger.error('loading annoto bootstrap', err);
     });
 
+    // TODO: remove this when KAF issue of loading V7 plugin for V2 embed is resolved
+    try {
+        const parentWindow = window.parent as any;
+        if (parentWindow.kms_kWidgetJsLoader?.onkWidgetLoad) {
+            parentWindow.kms_kWidgetJsLoader.onkWidgetLoad(() => {
+                setTimeout(() => {
+                    parentWindow.kWidget.addReadyCallback((playerId: string) => {
+                        if (
+                            parentWindow.KApps?.annotoApp &&
+                            !parentWindow.KApps.annotoApp.kdp &&
+                            typeof parentWindow.KalturaPlayer !== 'undefined'
+                        ) {
+                            Logger.log('kWidget ready handle hack for V7 KAF bug');
+                            parentWindow.KApps.annotoApp.kWidgetReadyHandle(playerId);
+                        } else {
+                            Logger.log('skip hack for V7 KAF bug');
+                        }
+                    });
+                });
+            });
+        }
+    } catch (err) {}
 }
