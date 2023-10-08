@@ -18,7 +18,7 @@
     "html-webpack-plugin": "^5.5.0",
     "nps": "^5.10.0",
     "nps-utils": "^1.7.0",
-    "postcss": "^8.4.5",
+    "postcss": "^8.4.31",
     "postcss-cli": "^9.1.0",
     "postcss-loader": "^6.2.1",
     "s3-deploy": "^1.4.0",
