@@ -77,10 +77,16 @@ interface Player extends Element {
     triggerHelper: (event: string, arg?: any) => void;
     bindHelper: (event: string, cb: Function) => void;
     unbindHelper: (event: string) => void;
+    getActiveSubtitle: () => TextTrack;
+    getTextTracks: () => KalturaV2TextTrack[];
 
     layoutBuilder: {
         isInFullScreen: () => boolean;
     };
+}
+
+export interface KalturaV2TextTrack extends TextTrack {
+    srclang: string;
 }
 
 interface MediaEtry {
@@ -109,6 +115,9 @@ interface PluginCtx extends AnnotoPluginCtx {
     getConfig: (option: string) => any;
     hide: () => void;
     show: () => void;
+    getMenu: () => {
+        $el: Element[];
+    };
     getCssClass: () => string;
     getBtn: () => any;
     isDisabled: boolean;

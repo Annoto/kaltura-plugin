@@ -158,6 +158,34 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         return this.player.getControlBarContainer().height();
     }
 
+    captionsOn(language?: string): void {
+        const textTracks = this.player.getTextTracks();
+        if (!textTracks?.length) {
+            return;
+        }
+        let selectedTextTrack: TextTrack = null;
+        if (language) {
+            for (let i = 0; i < textTracks.length; i++) {
+                if (textTracks[i].srclang === language) {
+                    selectedTextTrack = textTracks[i];
+                }
+            }
+        } else if (this.player.getActiveSubtitle()) {
+            selectedTextTrack = this.player.getActiveSubtitle();
+        } else {
+            selectedTextTrack = textTracks[0];
+        }
+        const captionsPlugin = this.player.getPluginInstance('closedCaptions');
+        const captionMenuEl = captionsPlugin.getMenu().$el[0];
+        const captionSelectEls = captionMenuEl.querySelectorAll('li a');
+        captionSelectEls.forEach((el: HTMLElement) => {
+            if (el.innerHTML.includes(selectedTextTrack.label)) {
+                el.click();
+                return;
+            }
+        })
+    }
+
     public controlsElement() {
         if (this.timelineContainer) {
             return this.timelineContainer;
