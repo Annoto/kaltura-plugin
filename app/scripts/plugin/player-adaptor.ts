@@ -171,7 +171,8 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
                 }
             }
         } else if (this.player.getActiveSubtitle()) {
-            selectedTextTrack = this.player.getActiveSubtitle();
+            // no need to enable enabled
+            return;
         } else {
             selectedTextTrack = textTracks[0];
         }
