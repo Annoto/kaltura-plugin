@@ -112,13 +112,15 @@ export class AnnotoPlugin {
         }
         const isSidePanelLayout = !!(ux.layout === 'sidePanel' || this.ctx.getConfig('sidePanelLayout'));
         const isFullScreenSidePanel = !!(ux.sidePanel.fullScreenEnable || this.ctx.getConfig('sidePanelFullScreen'));
-
         if (isSidePanelLayout) {
+            ux.layout = 'sidePanel';
+        }
+        // Check class of the expand button to see if it is in extended mode already
+        if (isSidePanelLayout && this.player.getPluginInstance('expandToggleBtn').getBtn()[0].classList.contains('icon-fullscreen-alt')) {
             try {
                 // try to expand the player should work for MediaSpace
                 this.player.getPluginInstance('expandToggleBtn').getBtn().click();
             } catch (err) {}
-            ux.layout = 'sidePanel';
         }
         if (isFullScreenSidePanel) {
             ux.sidePanel.fullScreenEnable = true;
