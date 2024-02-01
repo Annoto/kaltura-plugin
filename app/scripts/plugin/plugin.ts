@@ -27,6 +27,7 @@ export class AnnotoPlugin {
     private adaptor: PlayerAdaptor;
     private openState: boolean = false;
     private disabledState: boolean = false;
+    private isVideoExpanded: boolean = false;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
@@ -111,17 +112,18 @@ export class AnnotoPlugin {
             return;
         }
         const isSidePanelLayout = !!(ux.layout === 'sidePanel' || this.ctx.getConfig('sidePanelLayout'));
-        const isFullScreenSidePanel = !!(ux.sidePanel.fullScreenEnable || this.ctx.getConfig('sidePanelFullScreen'));
         if (isSidePanelLayout) {
             ux.layout = 'sidePanel';
         }
         // Check class of the expand button to see if it is in extended mode already
-        if (isSidePanelLayout && this.player.getPluginInstance('expandToggleBtn').getBtn()[0].classList.contains('icon-fullscreen-alt')) {
+        if (isSidePanelLayout && !this.isVideoExpanded && this.player.getPluginInstance('expandToggleBtn').getBtn()[0].classList.contains('icon-fullscreen-alt')) {
             try {
                 // try to expand the player should work for MediaSpace
+                this.isVideoExpanded = true;
                 this.player.getPluginInstance('expandToggleBtn').getBtn().click();
             } catch (err) {}
         }
+        const isFullScreenSidePanel = !!(ux.sidePanel.fullScreenEnable || this.ctx.getConfig('sidePanelFullScreen'));
         if (isFullScreenSidePanel) {
             ux.sidePanel.fullScreenEnable = true;
         }
