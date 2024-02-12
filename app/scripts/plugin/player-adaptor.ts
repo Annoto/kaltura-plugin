@@ -5,6 +5,7 @@ import {
     PlayerEventCallback,
     IMediaDetails,
     CaptureUIEventCallback,
+    ITextTrack,
 } from '@annoto/widget-api';
 
 declare const mw: {
@@ -158,23 +159,29 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         return this.player.getControlBarContainer().height();
     }
 
-    captionsOn(language?: string): void {
-        const textTracks = this.player.getTextTracks();
-        if (!textTracks?.length) {
+    setDefaultTextTrack(defTrack?: ITextTrack): void {
+        const { mode, language } = defTrack || {};
+        if (mode !== 'showing') {
+            return;
+        }
+        const tracks = this.player.getTextTracks();
+        if (!tracks?.length) {
             return;
         }
         let selectedTextTrack: TextTrack = null;
         if (language) {
-            for (let i = 0; i < textTracks.length; i++) {
-                if (textTracks[i].srclang === language) {
-                    selectedTextTrack = textTracks[i];
+            for (let i = 0; i < tracks.length; i++) {
+                if ((tracks[i].srclang || '').toLowerCase().includes(language.toLowerCase())) {
+                    selectedTextTrack = tracks[i];
                 }
             }
         } else if (this.player.getActiveSubtitle()) {
             // no need to enable enabled
             return;
-        } else {
-            selectedTextTrack = textTracks[0];
+        } 
+        // If no default track presented, enable first track
+        if (!selectedTextTrack) {
+            selectedTextTrack = tracks[0];
         }
         const captionsPlugin = this.player.getPluginInstance('closedCaptions');
         const captionMenuEl = captionsPlugin.getMenu().$el[0];
