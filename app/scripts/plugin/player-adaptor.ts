@@ -175,10 +175,7 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
                     selectedTextTrack = tracks[i];
                 }
             }
-        } else if (this.player.getActiveSubtitle()) {
-            // no need to enable enabled
-            return;
-        } 
+        }
         // If no default track presented, enable first track
         if (!selectedTextTrack) {
             selectedTextTrack = tracks[0];
