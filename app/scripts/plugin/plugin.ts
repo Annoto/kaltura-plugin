@@ -41,7 +41,6 @@ export class AnnotoPlugin {
 
         // custom property and custom value
         // customerKey: '',
-        // demoMode: false,
         // position: 'right',
         // locale: 'en',
         // sidePanelLayout: false,
@@ -149,9 +148,7 @@ export class AnnotoPlugin {
             return;
         }
 
-        const demoMode = this.ctx.getConfig('demoMode');
         this.config = {
-            demoMode,
             clientId: this.ctx.getConfig('customerKey'),
             launchSource: this.ctx.getConfig('launchSource'),
             zIndex: 1000,
