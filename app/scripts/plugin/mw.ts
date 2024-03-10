@@ -1,4 +1,8 @@
-import { ILaunchSourceConfig, ThemeType, WidgetPositionType } from '@annoto/widget-api';
+import {
+    ILaunchSourceConfig,
+    ThemeType,
+    WidgetPositionType,
+} from '@annoto/widget-api';
 
 interface PluginConfiguration {
     // Standard Kaltura plugin config
@@ -35,7 +39,7 @@ interface AnnotoPluginCtx {
     addBindings?: () => void;
     getComponent?: () => any;
     onDisable: () => void;
-    onEnable: () =>  void;
+    onEnable: () => void;
     destroy: () => void;
 }
 
@@ -50,7 +54,7 @@ interface Player extends Element {
     evaluate: (property: string) => any;
     setKDPAttribute: (selector: string, property: string, val: any) => void;
     isPlaying: () => boolean;
-    isInSequence: () => boolean;  // is Playing Ad
+    isInSequence: () => boolean; // is Playing Ad
     isPlaylistScreen: () => boolean;
     /**
      * Check if Dvr is supported for live stream
@@ -77,10 +81,17 @@ interface Player extends Element {
     triggerHelper: (event: string, arg?: any) => void;
     bindHelper: (event: string, cb: Function) => void;
     unbindHelper: (event: string) => void;
+    getActiveSubtitle: () => TextTrack;
+    getTextTracks: () => IKalturaV2TextTrack[];
 
     layoutBuilder: {
         isInFullScreen: () => boolean;
     };
+}
+
+export interface IKalturaV2TextTrack extends TextTrack {
+    srclang: string;
+    default: boolean;
 }
 
 interface MediaEtry {
@@ -114,6 +125,15 @@ interface PluginCtx extends AnnotoPluginCtx {
     isDisabled: boolean;
     safe: boolean;
     _super: () => void;
+}
+
+export interface ICaptionsPluginCtx extends PluginCtx {
+    getMenu: () => {
+        $el: JQuery;
+        setActive: (index: number) => void;
+    };
+    selectSourceByLangKey: (langKey: string) => unknown;
+    setTextSource: (src: unknown, setCookie?: boolean) => void;
 }
 
 export { PluginCtx, PluginConfiguration, AnnotoPluginCtx, Player, MediaEtry };

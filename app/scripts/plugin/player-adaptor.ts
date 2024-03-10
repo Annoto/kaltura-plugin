@@ -1,10 +1,11 @@
-import { Player, MediaEtry, PluginCtx } from './mw';
+import { Player, MediaEtry, PluginCtx, ICaptionsPluginCtx, IKalturaV2TextTrack } from './mw';
 import {
     IPlayerAdaptorApi,
     IControlsDescriptor,
     PlayerEventCallback,
     IMediaDetails,
     CaptureUIEventCallback,
+    ITextTrack,
 } from '@annoto/widget-api';
 
 declare const mw: {
@@ -156,6 +157,37 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
 
     public controlsHeight() : number | string {
         return this.player.getControlBarContainer().height();
+    }
+
+    setDefaultTextTrack(defTrack?: ITextTrack): void {
+        const { mode, language } = defTrack || {};
+        if (mode !== 'showing') {
+            return;
+        }
+        const tracks = this.player.getTextTracks();
+        if (!tracks?.length) {
+            return;
+        }
+        let selectedTextTrack: IKalturaV2TextTrack;
+        if (language) {
+            selectedTextTrack = tracks.find((t) => t.srclang?.toLocaleLowerCase().includes(language.toLowerCase()))
+        }
+        // If no default track presented, enable first track
+        if (!selectedTextTrack) {
+            selectedTextTrack = tracks.find((t) => t.default) ||  tracks[0];
+        }
+
+        const captionsPlugin = this.player.getPluginInstance('closedCaptions') as ICaptionsPluginCtx;
+        if (!captionsPlugin) {
+            return;
+        }
+        const captionsMenu = captionsPlugin.getMenu();
+        const src = captionsPlugin?.selectSourceByLangKey(selectedTextTrack.srclang);
+        if (src) {
+            const index = captionsMenu.$el.find('li a').index(captionsMenu.$el.find(`a[title=${selectedTextTrack.label}]`));
+            captionsMenu.setActive(index);
+            captionsPlugin.setTextSource(src, false);
+        }
     }
 
     public controlsElement() {
