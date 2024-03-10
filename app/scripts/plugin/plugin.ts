@@ -27,7 +27,7 @@ export class AnnotoPlugin {
     private adaptor: PlayerAdaptor;
     private openState: boolean = false;
     private disabledState: boolean = false;
-    private isVideoExpanded: boolean = false;
+    private setupLayoutCalled: boolean = false;
 
     constructor(ctx: PluginCtx) {
         this.ctx = ctx;
@@ -103,11 +103,13 @@ export class AnnotoPlugin {
     private setupLayout() {
         if (this.annotoApi.getWidgetState() === 'hidden') {
             setTimeout(() => this.player.triggerHelper('resizeEvent'), 100);
+            this.setupLayoutCalled = true;
             return;
         }
         const ux = this.config.widgets[this.widgetIndex]?.ux;
         if (!ux) {
             Logger.warn('widget ux for setupLyaout not found');
+            this.setupLayoutCalled = true;
             return;
         }
         const isSidePanelLayout = !!(ux.layout === 'sidePanel' || this.ctx.getConfig('sidePanelLayout'));
@@ -115,13 +117,16 @@ export class AnnotoPlugin {
             ux.layout = 'sidePanel';
         }
         // Check class of the expand button to see if it is in extended mode already
-        if (isSidePanelLayout && !this.isVideoExpanded && this.player.getPluginInstance('expandToggleBtn').getBtn()[0].classList.contains('icon-fullscreen-alt')) {
+        if (isSidePanelLayout && !this.setupLayoutCalled) {
             try {
                 // try to expand the player should work for MediaSpace
-                this.isVideoExpanded = true;
-                this.player.getPluginInstance('expandToggleBtn').getBtn().click();
+                const expandBtn = this.player.getPluginInstance('expandToggleBtn')?.getBtn();
+                if (expandBtn.hasClass('icon-fullscreen-alt')) {
+                    expandBtn.click();
+                }
             } catch (err) {}
         }
+        this.setupLayoutCalled = true;
         const isFullScreenSidePanel = !!(ux.sidePanel.fullScreenEnable || this.ctx.getConfig('sidePanelFullScreen'));
         if (isFullScreenSidePanel) {
             ux.sidePanel.fullScreenEnable = true;
