@@ -1,4 +1,4 @@
-import { Player, MediaEtry, PluginCtx } from './mw';
+import { Player, MediaEtry, PluginCtx, ICaptionsPluginCtx, IKalturaV2TextTrack } from './mw';
 import {
     IPlayerAdaptorApi,
     IControlsDescriptor,
@@ -168,27 +168,26 @@ export class PlayerAdaptor implements IPlayerAdaptorApi {
         if (!tracks?.length) {
             return;
         }
-        let selectedTextTrack: TextTrack = null;
+        let selectedTextTrack: IKalturaV2TextTrack;
         if (language) {
-            for (let i = 0; i < tracks.length; i++) {
-                if ((tracks[i].srclang || '').toLowerCase().includes(language.toLowerCase())) {
-                    selectedTextTrack = tracks[i];
-                }
-            }
+            selectedTextTrack = tracks.find((t) => t.srclang?.toLocaleLowerCase().includes(language.toLowerCase()))
         }
         // If no default track presented, enable first track
         if (!selectedTextTrack) {
-            selectedTextTrack = tracks[0];
+            selectedTextTrack = tracks.find((t) => t.default) ||  tracks[0];
         }
-        const captionsPlugin = this.player.getPluginInstance('closedCaptions');
-        const captionMenuEl = captionsPlugin.getMenu().$el[0];
-        const captionSelectEls = captionMenuEl.querySelectorAll('li a');
-        captionSelectEls.forEach((el: HTMLElement) => {
-            if (el.innerHTML.includes(selectedTextTrack.label)) {
-                el.click();
-                return;
-            }
-        })
+
+        const captionsPlugin = this.player.getPluginInstance('closedCaptions') as ICaptionsPluginCtx;
+        if (!captionsPlugin) {
+            return;
+        }
+        const captionsMenu = captionsPlugin.getMenu();
+        const src = captionsPlugin?.selectSourceByLangKey(selectedTextTrack.srclang);
+        if (src) {
+            const index = captionsMenu.$el.find('li a').index(captionsMenu.$el.find(`a[title=${selectedTextTrack.label}]`));
+            captionsMenu.setActive(index);
+            captionsPlugin.setTextSource(src, false);
+        }
     }
 
     public controlsElement() {
