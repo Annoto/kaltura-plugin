@@ -51,14 +51,11 @@ module.exports = {
             proxy: {
                 script: 'webpack serve --env envName=dev_proxy'
             },
-            https: {
-                script: 'webpack serve --env envName=dev --env https=1 --https'
-            },
             staging: {
-                script: 'webpack serve --env envName=dev_staging --env https=1 --https'
+                script: 'webpack serve --env envName=dev_staging'
             },
             prod: {
-                script: 'webpack serve --env envName=prod --env https=1 --https'
+                script: 'webpack serve --env envName=dev_prod'
             },
         },
         deploy: {

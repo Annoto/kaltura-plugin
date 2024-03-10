@@ -12,8 +12,8 @@ module.exports = function (env) {
         devtool: 'inline-cheap-module-source-map',
         mode: 'development',
         devServer: {
-            contentBase: path.join(__dirname, 'dist'),
             port: 9001,
+            allowedHosts: 'all',
         },
     });
 };
