@@ -10,6 +10,13 @@ module.exports = function (env) {
         devServer: {
             port: 9001,
             allowedHosts: 'all',
+            client: {
+                webSocketURL: {
+                    protocol: 'wss',
+                    hostname: `kaltura-plugin.eu.ngrok.io`,
+                    port: 443,
+                },
+            },
         },
     });
 };
